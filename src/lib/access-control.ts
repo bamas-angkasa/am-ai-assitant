@@ -175,6 +175,17 @@ export function checkPermission(
     return { allowed: true, reason: "No sensitive property records are needed for this response.", dataUsed: [] };
   }
 
+  if (intent === "building_announcements") {
+    return {
+      allowed: allowedData.announcements.length > 0,
+      reason:
+        allowedData.announcements.length > 0
+          ? "Announcements are filtered to buildings connected to the selected user."
+          : "No announcements are available in the user's building scope.",
+      dataUsed: allowedData.announcements.map((announcement) => `Announcement ${announcement.id}`)
+    };
+  }
+
   if (intent === "user_profile") {
     return {
       allowed: true,

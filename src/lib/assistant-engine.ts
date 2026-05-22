@@ -10,10 +10,11 @@ export function detectIntent(question: string): AssistantIntent {
   if (/(live agent|human|person|representative|connect me|talk to someone)/.test(text)) return "request_live_agent";
   if (/(called|phone|answered|answer|nobody|no one|complain|complaint)/.test(text)) return "complaint_followup";
   if (/(my profile|profile|who am i|my name|my phone|my number|my address|contact info|contact information)/.test(text)) return "user_profile";
+  if (/(announcement|announcements|notice|notices|building update|building updates)/.test(text)) return "building_announcements";
   if (/(owe|rent|payment|balance|paid|outstanding)/.test(text)) {
     return "check_payment_balance";
   }
-  if (/(lease|contract|agreement|end|expire)/.test(text)) return "check_lease_info";
+  if (/\b(lease|contract|agreement|end|ends|ending|expire|expires|expired)\b/.test(text)) return "check_lease_info";
   if (/(issue|maintenance|repair|plumbing|electrical|elevator|urgent attention)/.test(text)) {
     if (/(all|open|unresolved|summary|building|safety|maintenance issues|my units|urgent attention)/.test(text) && !/iss-\d+/i.test(question)) return "maintenance_summary";
     return "check_issue_status";
@@ -74,6 +75,10 @@ export function generateAnswer(
   permissionResult: PermissionResult
 ) {
   if (!permissionResult.allowed) {
+    if (intent === "out_of_scope") {
+      return "I'm here to help with property-related questions such as rent, lease, maintenance, building updates, and support requests.";
+    }
+
     if (intent === "check_payment_balance" || intent === "unauthorized_access") {
       if (user.role === "hoa_board") {
         return "I'm sorry, I can't share private tenant payment details. I can only help with building operations, common area issues, and maintenance-related information.";
@@ -97,7 +102,7 @@ export function generateAnswer(
   }
 
   if (intent === "request_live_agent") {
-    return "Of course. I can connect you with a live agent from the property management team now.";
+    return "Of course. I can connect you with a live agent.";
   }
 
   if (intent === "user_profile") {
@@ -126,9 +131,7 @@ export function generateAnswer(
       return "The elevator issue is currently in progress. Inspection has been completed, and the replacement part has been ordered.";
     }
 
-    const vendor = issue.assigned_vendor_id ? allowedData.vendors.find((item) => item.id === issue.assigned_vendor_id) : undefined;
-    const vendorLabel = vendor ? ` Assigned vendor: ${vendor.name} (${vendor.phone}).` : "";
-    return `Your issue ${issue.id}, "${issue.title}", is currently ${issue.status.replace("_", " ")}. ${issue.last_update}${vendorLabel}`;
+    return `Your issue ${issue.id}, "${issue.title}", is currently ${issue.status.replace("_", " ")}. ${issue.last_update}`;
   }
 
   if (intent === "check_payment_balance") {
@@ -147,14 +150,16 @@ export function generateAnswer(
     }
 
     const payment = allowedData.payments[0];
-    return `For ${payment.period}, your rent amount is ${formatCurrency(payment.amount_due)}. You have paid ${formatCurrency(payment.amount_paid)}, so your outstanding balance is ${formatCurrency(payment.outstanding_balance)}. Late fee: ${formatCurrency(payment.late_fee)}.`;
+    return `For ${payment.period}, your rent amount is ${formatCurrency(payment.amount_due)}. You have paid ${formatCurrency(payment.amount_paid)}, so your outstanding balance is ${formatCurrency(payment.outstanding_balance)}.`;
   }
 
   if (intent === "check_lease_info") {
     const lease = allowedData.leases[0];
     if (!lease) return "I couldn't find lease information in the records available to you. Would you like me to connect you with a live agent?";
 
-    return `Your active lease runs from ${lease.start_date} to ${lease.end_date}. The monthly rent is ${formatCurrency(lease.monthly_rent)} and the lease status is ${lease.status}.`;
+    const unit = allowedData.units.find((item) => item.id === lease.unit_id);
+    const unitLabel = unit ? ` for Unit ${unit.unit_number}` : "";
+    return `Your current lease${unitLabel} ends on ${formatDate(lease.end_date)}.`;
   }
 
   if (intent === "check_unit_status") {
@@ -171,7 +176,7 @@ export function generateAnswer(
     const lines = scopedUnits.map((unit) => {
       const tenant = allowedData.tenants.find((item) => item.id === unit.tenant_id);
       const occupant = tenant ? `occupied by ${tenant.name}` : "vacant";
-      return `Unit ${unit.unit_number} is ${occupant}, ${unit.bedrooms} bed / ${unit.bathrooms} bath, ${formatStatus(unit.availability_status)}, with monthly rent of ${formatCurrency(unit.monthly_rent)}.`;
+      return `Unit ${unit.unit_number} is ${occupant} with monthly rent of ${formatCurrency(unit.monthly_rent)}.`;
     });
 
     if (user.role === "unit_owner") {
@@ -188,6 +193,16 @@ export function generateAnswer(
     const unresolvedIssues = allowedData.issues.filter((issue) => issue.status !== "resolved");
     const outstandingRent = allowedData.payments.reduce((total, payment) => total + payment.outstanding_balance, 0);
     return `${building.name} has ${building.total_units} total units, ${building.occupied_units} occupied units, ${building.vacant_units} vacant units, ${unresolvedIssues.length} open maintenance issues, and ${formatCurrency(outstandingRent)} outstanding rent based on available demo payments.`;
+  }
+
+  if (intent === "building_announcements") {
+    if (allowedData.announcements.length === 0) {
+      return "I couldn't find building announcements in the records available to you.";
+    }
+
+    const prefix = allowedData.announcements.length === 1 ? "There is one building announcement:" : `There are ${allowedData.announcements.length} building announcements:`;
+    const lines = allowedData.announcements.map((announcement) => `${announcement.title}. ${announcement.message}`);
+    return `${prefix} ${lines.join(" ")}`;
   }
 
   if (intent === "maintenance_summary") {
@@ -209,17 +224,25 @@ export function generateAnswer(
       return "I couldn't find matching maintenance issues in the records available to you.";
     }
 
-    const intro = user.role === "unit_owner" ? `Yes, there are ${visibleIssues.length} maintenance issues linked to your units:` : `Here are the unresolved maintenance issues I can access:`;
+    const intro =
+      user.role === "unit_owner"
+        ? `Yes, there are ${visibleIssues.length} maintenance issues linked to your units:`
+        : user.role === "building_owner"
+          ? `There are ${visibleIssues.length} open or in-progress maintenance issues in your building:`
+          : user.role === "admin"
+            ? `There are ${visibleIssues.length} unresolved maintenance issues:`
+            : `Here are the unresolved maintenance issues I can access:`;
     const lines = visibleIssues.map((issue) => {
       const unit = issue.unit_id ? allowedData.units.find((item) => item.id === issue.unit_id) : undefined;
-      const unitLabel = unit ? `Unit ${unit.unit_number}` : "Common area";
-      return `${issue.id} - ${unitLabel} - ${issue.title} - ${formatStatus(issue.status)}.`;
+      const location = unit ? `in Unit ${unit.unit_number}` : "in the common area";
+      if (user.role === "admin") return issue.id;
+      return `${issue.id}, ${issue.title} ${location}, currently ${issue.status.replace("_", " ")}`;
     });
 
-    return `${intro}\n${lines.join("\n")}`;
+    return user.role === "admin" ? `${intro} ${formatIdList(lines)}.` : `${intro} ${formatList(lines)}.`;
   }
 
-  return "I can help with rent, lease, maintenance issues, building updates, and property management questions. Could you rephrase your request?";
+  return "I'm here to help with property-related questions such as rent, lease, maintenance, building updates, and support requests.";
 }
 
 export function shouldEscalateToLiveAgent(question: string, intent: AssistantIntent, permissionResult: PermissionResult, answer: string) {
@@ -240,4 +263,24 @@ export function getDataUsedSummary(debugData: AllowedData) {
     ...debugData.units.map((unit) => `Unit ${unit.unit_number}`),
     ...debugData.issues.map((issue) => `Issue ${issue.id}`)
   ];
+}
+
+function formatDate(value: string) {
+  return new Date(`${value}T00:00:00`).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  });
+}
+
+function formatList(items: string[]) {
+  if (items.length <= 1) return items[0] ?? "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join("; ")}; and ${items[items.length - 1]}`;
+}
+
+function formatIdList(items: string[]) {
+  if (items.length <= 1) return items[0] ?? "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
 }

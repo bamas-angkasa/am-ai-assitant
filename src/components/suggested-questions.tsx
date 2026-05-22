@@ -9,6 +9,7 @@ const questionsByRole: Record<UserRole, string[]> = {
     "How much rent do I owe?",
     "What is the status of issue ISS-1001?",
     "When does my lease end?",
+    "Are there any building announcements?",
     "I called many times but nobody answered.",
     "There is water flooding in my apartment."
   ],
@@ -17,12 +18,14 @@ const questionsByRole: Record<UserRole, string[]> = {
     "What is the status of the elevator issue?",
     "Show building maintenance issues.",
     "Is there any safety issue in the building?",
+    "Are there any building announcements?",
     "How much rent does John in Unit 101 owe?"
   ],
   unit_owner: [
     "Show my profile and contact information.",
     "Show me the status of my units.",
     "Are there any open maintenance issues in my units?",
+    "Are there any building announcements?",
     "Show rent summary for my units."
   ],
   building_owner: [
@@ -30,6 +33,7 @@ const questionsByRole: Record<UserRole, string[]> = {
     "Give me a summary of my apartment building.",
     "Show all open maintenance issues.",
     "Which units are vacant?",
+    "Are there any building announcements?",
     "Show outstanding rent summary."
   ],
   admin: [
@@ -37,6 +41,7 @@ const questionsByRole: Record<UserRole, string[]> = {
     "Show all unresolved maintenance issues.",
     "Show all tenant payment status.",
     "Show building summary.",
+    "Are there any building announcements?",
     "What issues need urgent attention?"
   ]
 };

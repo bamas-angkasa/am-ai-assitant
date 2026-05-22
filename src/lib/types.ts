@@ -204,6 +204,7 @@ export type AssistantIntent =
   | "check_lease_info"
   | "check_unit_status"
   | "building_summary"
+  | "building_announcements"
   | "maintenance_summary"
   | "complaint_followup"
   | "emergency_issue"

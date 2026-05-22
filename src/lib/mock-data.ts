@@ -20,12 +20,12 @@ import type {
 export const buildings: Building[] = [
   {
     id: "bldg-001",
-    name: "Dian Heights",
+    name: "Vantage Residence Apartment",
     address: "1200 Market Street, San Francisco, CA",
     property_type: "apartment",
-    total_units: 6,
-    occupied_units: 5,
-    vacant_units: 1,
+    total_units: 20,
+    occupied_units: 18,
+    vacant_units: 2,
     owner_id: "owner-001",
     assigned_manager: "Dian Property Admin",
     hoa_board_ids: ["board-001"],
@@ -41,7 +41,7 @@ export const units: Unit[] = [
     owner_id: "owner-002",
     tenant_id: "tenant-001",
     status: "occupied",
-    monthly_rent: 2400,
+    monthly_rent: 1800,
     lease_id: "lease-001",
     bedrooms: 1,
     bathrooms: 1,
@@ -54,7 +54,7 @@ export const units: Unit[] = [
     owner_id: "owner-003",
     tenant_id: "tenant-002",
     status: "occupied",
-    monthly_rent: 2650,
+    monthly_rent: 1750,
     lease_id: "lease-002",
     bedrooms: 2,
     bathrooms: 1,
@@ -67,7 +67,7 @@ export const units: Unit[] = [
     owner_id: "owner-003",
     tenant_id: null,
     status: "vacant",
-    monthly_rent: 2550,
+    monthly_rent: 1750,
     lease_id: null,
     bedrooms: 2,
     bathrooms: 1,
@@ -80,7 +80,7 @@ export const units: Unit[] = [
     owner_id: "owner-001",
     tenant_id: "tenant-003",
     status: "occupied",
-    monthly_rent: 3100,
+    monthly_rent: 1900,
     lease_id: "lease-003",
     bedrooms: 2,
     bathrooms: 2,
@@ -94,7 +94,7 @@ export const tenants: Tenant[] = [
     name: "John Miller",
     email: "john.miller@example.com",
     phone: "555-0101",
-    mailing_address: "Unit 101, Dian Heights",
+    mailing_address: "Unit 101, Vantage Residence Apartment",
     unit_id: "unit-101",
     lease_id: "lease-001",
     move_in_date: "2025-06-01",
@@ -106,7 +106,7 @@ export const tenants: Tenant[] = [
     name: "Emma Wilson",
     email: "emma.wilson@example.com",
     phone: "555-0102",
-    mailing_address: "Unit 102, Dian Heights",
+    mailing_address: "Unit 102, Vantage Residence Apartment",
     unit_id: "unit-102",
     lease_id: "lease-002",
     move_in_date: "2025-09-01",
@@ -118,7 +118,7 @@ export const tenants: Tenant[] = [
     name: "Caleb Rivera",
     email: "caleb.rivera@example.com",
     phone: "555-0103",
-    mailing_address: "Unit 204, Dian Heights",
+    mailing_address: "Unit 204, Vantage Residence Apartment",
     unit_id: "unit-204",
     lease_id: "lease-003",
     move_in_date: "2024-08-15",
@@ -151,14 +151,14 @@ export const owners: Owner[] = [
     phone: "555-0202",
     mailing_address: "44 Bryant Street, San Francisco, CA",
     owned_property_ids: [],
-    owned_unit_ids: ["unit-101"],
+    owned_unit_ids: ["unit-101", "unit-102"],
     statement_summary: {
       period: "May 2026",
-      gross_income: 2400,
+      gross_income: 3550,
       expenses: 410,
       net_distribution: 1990
     },
-    payment_distribution_summary: "Unit 101 has a partial tenant balance outstanding."
+    payment_distribution_summary: "Unit 101 has a partial tenant balance outstanding and Unit 102 is current."
   },
   {
     id: "owner-003",
@@ -167,7 +167,7 @@ export const owners: Owner[] = [
     phone: "555-0202",
     mailing_address: "44 Bryant Street, San Francisco, CA",
     owned_property_ids: [],
-    owned_unit_ids: ["unit-102", "unit-103"],
+    owned_unit_ids: ["unit-103"],
     statement_summary: {
       period: "May 2026",
       gross_income: 2650,
@@ -185,7 +185,7 @@ export const boardMembers: BoardMember[] = [
     email: "michael.brown@example.com",
     phone: "555-0301",
     building_id: "bldg-001",
-    association: "Dian Heights HOA",
+    association: "Vantage Residence HOA",
     permission_level: "operations",
     managed_common_areas: ["Lobby", "Elevator", "Roof"]
   }
@@ -197,9 +197,9 @@ export const leases: Lease[] = [
     tenant_id: "tenant-001",
     unit_id: "unit-101",
     start_date: "2025-06-01",
-    end_date: "2026-05-31",
-    monthly_rent: 2400,
-    deposit: 2400,
+    end_date: "2026-06-30",
+    monthly_rent: 1800,
+    deposit: 1800,
     status: "active",
     renewal_status: "offered"
   },
@@ -209,8 +209,8 @@ export const leases: Lease[] = [
     unit_id: "unit-102",
     start_date: "2025-09-01",
     end_date: "2026-08-31",
-    monthly_rent: 2650,
-    deposit: 2650,
+    monthly_rent: 1750,
+    deposit: 1750,
     status: "active",
     renewal_status: "not_started"
   },
@@ -220,8 +220,8 @@ export const leases: Lease[] = [
     unit_id: "unit-204",
     start_date: "2024-08-15",
     end_date: "2026-06-30",
-    monthly_rent: 3100,
-    deposit: 3100,
+    monthly_rent: 1900,
+    deposit: 1900,
     status: "active",
     renewal_status: "not_started"
   }
@@ -233,21 +233,21 @@ export const payments: Payment[] = [
     tenant_id: "tenant-001",
     unit_id: "unit-101",
     period: "May 2026",
-    amount_due: 2400,
-    amount_paid: 1200,
-    outstanding_balance: 1200,
+    amount_due: 1800,
+    amount_paid: 1000,
+    outstanding_balance: 800,
     due_date: "2026-05-01",
     status: "partially_paid",
-    late_fee: 75,
-    ledger_charges: ["Base rent", "Late fee"]
+    late_fee: 0,
+    ledger_charges: ["Base rent"]
   },
   {
     id: "payment-002",
     tenant_id: "tenant-002",
     unit_id: "unit-102",
     period: "May 2026",
-    amount_due: 2650,
-    amount_paid: 2650,
+    amount_due: 1750,
+    amount_paid: 1750,
     outstanding_balance: 0,
     due_date: "2026-05-01",
     status: "paid",
@@ -259,13 +259,13 @@ export const payments: Payment[] = [
     tenant_id: "tenant-003",
     unit_id: "unit-204",
     period: "May 2026",
-    amount_due: 3100,
-    amount_paid: 0,
-    outstanding_balance: 3100,
+    amount_due: 1900,
+    amount_paid: 1900,
+    outstanding_balance: 0,
     due_date: "2026-05-01",
-    status: "overdue",
-    late_fee: 95,
-    ledger_charges: ["Base rent", "Late fee", "Notice posting fee"]
+    status: "paid",
+    late_fee: 0,
+    ledger_charges: ["Base rent"]
   }
 ];
 
@@ -278,14 +278,14 @@ export const issues: Issue[] = [
     building_id: "bldg-001",
     category: "plumbing",
     scope: "private_unit",
-    title: "Kitchen sink leak",
+    title: "Kitchen sink leaking",
     description: "Tenant reported leaking pipe below the kitchen sink.",
     status: "in_progress",
     priority: "medium",
     assigned_to: "Maintenance Team",
     assigned_vendor_id: "vendor-001",
     created_at: "2026-05-12",
-    last_update: "A plumber is scheduled for May 23 between 10 AM and 12 PM.",
+    last_update: "The technician is scheduled for May 24, 2026 between 10 AM and 12 PM.",
     completed_at: null
   },
   {
@@ -294,28 +294,28 @@ export const issues: Issue[] = [
     reported_by: "tenant-002",
     unit_id: "unit-102",
     building_id: "bldg-001",
-    category: "hvac",
+    category: "electrical",
     scope: "private_unit",
-    title: "Bedroom AC not cooling",
-    description: "AC output is weak in the bedroom.",
+    title: "Bedroom light not working",
+    description: "Bedroom light fixture does not turn on.",
     status: "open",
-    priority: "high",
+    priority: "medium",
     assigned_to: "Maintenance Team",
     assigned_vendor_id: null,
     created_at: "2026-05-18",
-    last_update: "The maintenance team is reviewing available technician times.",
+    last_update: "The maintenance team is reviewing available electrician times.",
     completed_at: null
   },
   {
-    id: "ISS-1003",
-    work_order_id: "WO-1003",
+    id: "ISS-2001",
+    work_order_id: "WO-2001",
     reported_by: "board-001",
     unit_id: null,
     building_id: "bldg-001",
     category: "building_maintenance",
     scope: "common_area",
-    title: "Elevator replacement part",
-    description: "Elevator inspection found a worn door sensor.",
+    title: "Elevator making loud noise",
+    description: "Elevator is making a loud noise in the common area.",
     status: "in_progress",
     priority: "urgent",
     assigned_to: "Building Operations",
@@ -343,8 +343,8 @@ export const issues: Issue[] = [
     completed_at: "2026-05-07"
   },
   {
-    id: "ISS-2001",
-    work_order_id: "WO-2001",
+    id: "ISS-3001",
+    work_order_id: "WO-3001",
     reported_by: "board-001",
     unit_id: null,
     building_id: "bldg-001",
@@ -352,13 +352,13 @@ export const issues: Issue[] = [
     scope: "common_area",
     title: "Garage exit sign light out",
     description: "Emergency exit sign near garage stairwell B is not illuminated.",
-    status: "open",
+    status: "resolved",
     priority: "urgent",
     assigned_to: "Building Operations",
     assigned_vendor_id: "vendor-004",
     created_at: "2026-05-21",
     last_update: "Electrical vendor contacted and same-day visit requested.",
-    completed_at: null
+    completed_at: "2026-05-22"
   }
 ];
 
@@ -380,7 +380,7 @@ export const vendors: Vendor[] = [
     contact_name: "Avery Smith",
     email: "service@metroelevator.example.com",
     phone: "555-0402",
-    assigned_work_order_ids: ["WO-1003"],
+    assigned_work_order_ids: ["WO-2001"],
     invoice_status: "draft"
   },
   {
@@ -400,7 +400,7 @@ export const vendors: Vendor[] = [
     contact_name: "Jasmine Moore",
     email: "urgent@brightpath.example.com",
     phone: "555-0404",
-    assigned_work_order_ids: ["WO-2001"],
+    assigned_work_order_ids: ["WO-3001"],
     invoice_status: "submitted"
   }
 ];
@@ -461,7 +461,7 @@ export const attachments: Attachment[] = [
     file_name: "elevator-inspection-report.pdf",
     file_type: "pdf",
     related_entity_type: "work_order",
-    related_entity_id: "WO-1003",
+    related_entity_id: "WO-2001",
     uploaded_date: "2026-05-17",
     visibility: "board"
   }
@@ -511,15 +511,8 @@ export const announcements: Announcement[] = [
   {
     id: "ann-001",
     building_id: "bldg-001",
-    title: "Elevator service notice",
-    message: "Elevator repair work is pending parts delivery. Updates will be posted daily.",
-    visibility: "building"
-  },
-  {
-    id: "ann-002",
-    building_id: "bldg-001",
-    title: "Garage access notice",
-    message: "Garage entry will use manual attendant access on May 27, 2026 from 9 AM to 2 PM.",
+    title: "Scheduled Lobby Cleaning",
+    message: "Lobby deep cleaning is scheduled for May 25, 2026 from 8 AM to 11 AM.",
     visibility: "building"
   }
 ];
@@ -544,7 +537,7 @@ export const users: User[] = [
     address: "88 Mission Street, San Francisco, CA",
     role: "building_owner",
     displayRole: "Building Owner",
-    accessDescription: "Can view building-level operations, units, tenants, payment summaries, maintenance issues, and announcements for Dian Heights.",
+    accessDescription: "Can view building-level operations, units, tenants, payment summaries, maintenance issues, and announcements for Vantage Residence Apartment.",
     ownerId: "owner-001",
     buildingIds: ["bldg-001"]
   },
@@ -553,7 +546,7 @@ export const users: User[] = [
     name: "Michael Brown",
     email: "michael.brown@example.com",
     phone: "555-0301",
-    address: "Dian Heights",
+    address: "Vantage Residence Apartment",
     role: "hoa_board",
     displayRole: "HOA / Board Member",
     accessDescription: "Can view common-area and building maintenance records, safety issues, and building announcements. Private tenant financial data is excluded.",
@@ -568,16 +561,16 @@ export const users: User[] = [
     address: "44 Bryant Street, San Francisco, CA",
     role: "unit_owner",
     displayRole: "Unit Owner",
-    accessDescription: "Can view owned units, linked tenants, leases, payments, issues, and announcements for Unit 102 and Unit 103.",
-    unitOwnerId: "owner-003",
-    unitIds: ["unit-102", "unit-103"]
+    accessDescription: "Can view owned units, linked tenants, leases, payments, issues, and announcements for Unit 101 and Unit 102.",
+    unitOwnerId: "owner-002",
+    unitIds: ["unit-101", "unit-102"]
   },
   {
     id: "user-tenant-john",
     name: "John Miller",
     email: "john.miller@example.com",
     phone: "555-0101",
-    address: "Unit 101, Dian Heights",
+    address: "Unit 101, Vantage Residence Apartment",
     role: "tenant",
     displayRole: "Tenant",
     accessDescription: "Unit 101, lease-001, payment-001, issue ISS-1001, and building announcements.",
@@ -592,7 +585,7 @@ export const users: User[] = [
     name: "Emma Wilson",
     email: "emma.wilson@example.com",
     phone: "555-0102",
-    address: "Unit 102, Dian Heights",
+    address: "Unit 102, Vantage Residence Apartment",
     role: "tenant",
     displayRole: "Tenant",
     accessDescription: "Unit 102, lease-002, payment-002, issue ISS-1002, and building announcements.",
@@ -607,7 +600,7 @@ export const users: User[] = [
     name: "Caleb Rivera",
     email: "caleb.rivera@example.com",
     phone: "555-0103",
-    address: "Unit 204, Dian Heights",
+    address: "Unit 204, Vantage Residence Apartment",
     role: "tenant",
     displayRole: "Tenant",
     accessDescription: "Unit 204, lease-003, payment-003, issue ISS-1004, and building announcements.",
