@@ -3,11 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Bot, Circle, UserRound } from "lucide-react";
 import { runAssistant } from "@/lib/assistant-engine";
-import { getDefaultDataContext, loadSavedDataContext } from "@/lib/data-context";
+import { clearSavedDataContext, getDefaultDataContext, loadSavedDataContext, parseDataContext, saveDataContext, serializeDataContext } from "@/lib/data-context";
 import type { AppFolioDataContext, AssistantDebugState, ChatMessage, User } from "@/lib/types";
 import { nowLabel } from "@/lib/utils";
 import { AssistantDebugPanel } from "./assistant-debug-panel";
 import { ChatPanel } from "./chat-panel";
+import { DataContextPanel } from "./data-context-panel";
 import { RoleCard } from "./role-card";
 import { SuggestedQuestions } from "./suggested-questions";
 import { UserSelector } from "./user-selector";
@@ -21,6 +22,7 @@ export function AppShell() {
   const [messages, setMessages] = useState<ChatMessage[]>(() => [createMessage("assistant", initialAssistantMessage)]);
   const [debugState, setDebugState] = useState<AssistantDebugState | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [dataStatus, setDataStatus] = useState("Using built-in master data.");
 
   useEffect(() => {
     try {
@@ -29,8 +31,9 @@ export function AppShell() {
 
       setDataContext(saved);
       setSelectedUser(saved.users[4] ?? saved.users[0]);
+      setDataStatus("Loaded imported master data from this browser.");
     } catch (error) {
-      console.warn(error instanceof Error ? `Saved context could not be loaded: ${error.message}` : "Saved context could not be loaded.");
+      setDataStatus(error instanceof Error ? `Saved data could not be loaded: ${error.message}` : "Saved data could not be loaded.");
     }
   }, []);
 
@@ -76,6 +79,44 @@ export function AppShell() {
     ]);
   }
 
+  function handleImportDataContext(rawJson: string) {
+    try {
+      const nextContext = parseDataContext(rawJson);
+      saveDataContext(nextContext);
+      setDataContext(nextContext);
+      setSelectedUser(nextContext.users.find((user) => user.id === selectedUser.id) ?? nextContext.users[0]);
+      setDebugState(null);
+      setMessages([
+        createMessage("assistant", initialAssistantMessage),
+        createMessage("system", "Imported new master data. The assistant will answer from the uploaded records.")
+      ]);
+      setDataStatus(`Imported ${nextContext.users.length} users, ${nextContext.units.length} units, ${nextContext.issues.length} work orders.`);
+    } catch (error) {
+      setDataStatus(error instanceof Error ? `Import failed: ${error.message}` : "Import failed. Please check the JSON file.");
+    }
+  }
+
+  function handleExportDataContext() {
+    const blob = new Blob([serializeDataContext(dataContext)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "dian-master-data.json";
+    link.click();
+    URL.revokeObjectURL(url);
+    setDataStatus("Exported current master data as JSON.");
+  }
+
+  function handleResetDataContext() {
+    const defaultContext = getDefaultDataContext();
+    clearSavedDataContext();
+    setDataContext(defaultContext);
+    setSelectedUser(defaultContext.users[4]);
+    setDebugState(null);
+    setMessages([createMessage("assistant", initialAssistantMessage), createMessage("system", "Reset to built-in demo master data.")]);
+    setDataStatus("Using built-in master data.");
+  }
+
   return (
     <main className="h-screen overflow-hidden bg-white text-slate-950">
       <div className="flex h-screen flex-col">
@@ -101,7 +142,16 @@ export function AppShell() {
         <div className="grid min-h-0 flex-1 lg:grid-cols-[300px_minmax(0,1fr)_380px]">
           <aside className="flex min-h-0 flex-col bg-slate-50">
             <UserSelector users={dataContext.users} selectedUser={selectedUser} onSelectUser={handleSelectUser} />
-            <RoleCard user={selectedUser} />
+            <div className="flex-none border-r border-slate-200 bg-slate-50">
+              <RoleCard user={selectedUser} />
+              <DataContextPanel
+                dataContext={dataContext}
+                status={dataStatus}
+                onImport={handleImportDataContext}
+                onExport={handleExportDataContext}
+                onReset={handleResetDataContext}
+              />
+            </div>
           </aside>
 
           <ChatPanel
