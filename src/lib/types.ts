@@ -24,6 +24,10 @@ export interface Building {
   id: string;
   name: string;
   address: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  neighborhood: string;
   property_type: "apartment" | "condo" | "hoa" | "mixed_use";
   total_units: number;
   occupied_units: number;
@@ -46,6 +50,53 @@ export interface Unit {
   bedrooms: number;
   bathrooms: number;
   availability_status: "available_now" | "leased" | "notice_given" | "offline";
+}
+
+export interface PropertyListing {
+  id: string;
+  building_id: string;
+  unit_id: string | null;
+  property_address: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  neighborhood: string;
+  property_type: "apartment" | "condo" | "single_family" | "townhouse" | "mixed_use";
+  listing_price: number;
+  sale_price: number | null;
+  price_per_square_foot: number;
+  bedrooms: number;
+  bathrooms: number;
+  square_footage: number;
+  lot_size: string;
+  year_built: number;
+  days_on_appfolio: number;
+  listing_date: string;
+  property_description: string;
+  photos: Array<{
+    id: string;
+    url: string;
+    caption: string;
+  }>;
+  virtual_tour_links: string[];
+  property_status: "for_rent" | "for_sale" | "pending" | "sold" | "leased" | "off_market";
+  hoa_fees: number;
+  property_tax_information: {
+    annual_tax: number;
+    tax_year: number;
+    assessed_value: number;
+  };
+  school_district: string;
+  walk_score: number;
+  listing_agent_name: string;
+  listing_agent_contact_information: {
+    email: string;
+    phone: string;
+  };
+  open_house_dates: string[];
+  heating_cooling_information: string;
+  parking_details: string;
+  additional_features: string[];
 }
 
 export interface Tenant {
@@ -225,6 +276,7 @@ export interface ExtractedEntities {
 export interface AllowedData {
   buildings: Building[];
   units: Unit[];
+  propertyListings: PropertyListing[];
   tenants: Tenant[];
   owners: Owner[];
   boardMembers: BoardMember[];

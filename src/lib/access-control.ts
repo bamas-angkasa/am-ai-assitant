@@ -14,6 +14,7 @@ export function getAllowedData(user: User, dataContext: AppFolioDataContext = de
     liveChatEscalations,
     owners,
     payments,
+    propertyListings,
     tenants,
     units,
     vendors
@@ -23,6 +24,7 @@ export function getAllowedData(user: User, dataContext: AppFolioDataContext = de
     return {
       buildings,
       units,
+      propertyListings,
       tenants,
       owners,
       boardMembers,
@@ -49,6 +51,7 @@ export function getAllowedData(user: User, dataContext: AppFolioDataContext = de
     return {
       buildings: buildings.filter((building) => buildingIds.includes(building.id)),
       units: scopedUnits,
+      propertyListings: propertyListings.filter((listing) => buildingIds.includes(listing.building_id)),
       tenants: tenants.filter((tenant) => scopedTenantIds.includes(tenant.id)),
       owners: owners.filter((owner) => owner.id === user.ownerId || owner.owned_property_ids.some((id) => buildingIds.includes(id))),
       boardMembers: boardMembers.filter((member) => buildingIds.includes(member.building_id)),
@@ -82,6 +85,7 @@ export function getAllowedData(user: User, dataContext: AppFolioDataContext = de
     return {
       buildings: buildings.filter((building) => buildingIds.includes(building.id)),
       units: [],
+      propertyListings: propertyListings.filter((listing) => buildingIds.includes(listing.building_id)),
       tenants: [],
       owners: [],
       boardMembers: boardMembers.filter((member) => buildingIds.includes(member.building_id)),
@@ -109,6 +113,7 @@ export function getAllowedData(user: User, dataContext: AppFolioDataContext = de
     return {
       buildings: buildings.filter((building) => scopedUnits.some((unit) => unit.building_id === building.id)),
       units: scopedUnits,
+      propertyListings: propertyListings.filter((listing) => listing.unit_id !== null && unitIds.includes(listing.unit_id)),
       tenants: tenants.filter((tenant) => scopedTenantIds.includes(tenant.id)),
       owners: owners.filter((owner) => owner.id === user.unitOwnerId),
       boardMembers: [],
@@ -141,6 +146,7 @@ export function getAllowedData(user: User, dataContext: AppFolioDataContext = de
   return {
     buildings: buildings.filter((building) => units.some((unit) => unitIds.includes(unit.id) && unit.building_id === building.id)),
     units: units.filter((unit) => unitIds.includes(unit.id)),
+    propertyListings: propertyListings.filter((listing) => listing.unit_id !== null && unitIds.includes(listing.unit_id)),
     tenants: tenants.filter((tenant) => tenant.id === tenantId),
     owners: [],
     boardMembers: [],
@@ -278,6 +284,7 @@ export function checkPermission(
       reason: "Building and maintenance records are filtered to the selected user's scope.",
       dataUsed: [
         ...allowedData.buildings.map((building) => building.name),
+        ...allowedData.propertyListings.map((listing) => `Listing ${listing.id}`),
         ...allowedData.issues.map((issue) => `Issue ${issue.id}`)
       ]
     };

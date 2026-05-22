@@ -20,7 +20,7 @@ export function detectIntent(question: string): AssistantIntent {
     return "check_issue_status";
   }
   if (/(unit|units|vacant|occupied|status)/.test(text)) return "check_unit_status";
-  if (/(building|apartment|summary|occupancy|facilities)/.test(text)) return "building_summary";
+  if (/(building|apartment|summary|occupancy|facilities|property|listing|price|photos|tour|tax|school|walk score|open house|parking|hoa)/.test(text)) return "building_summary";
 
   return "out_of_scope";
 }
@@ -190,6 +190,21 @@ export function generateAnswer(
     const building = allowedData.buildings[0];
     if (!building) return "I couldn't find a building summary in your allowed access scope.";
 
+    const wantsListingDetails = /(property|listing|price|photos|tour|tax|school|walk score|open house|parking|hoa|features)/i.test(question);
+    if (wantsListingDetails && allowedData.propertyListings.length > 0) {
+      const listings = allowedData.propertyListings.map((listing) => {
+        const status = formatStatus(listing.property_status);
+        const salePrice = listing.sale_price ? ` Sale price: ${formatCurrency(listing.sale_price)}.` : "";
+        const openHouses =
+          listing.open_house_dates.length > 0
+            ? ` Open houses: ${listing.open_house_dates.map((date) => formatDateTime(date)).join(", ")}.`
+            : " No open house dates are currently listed.";
+        return `${listing.property_address}, ${listing.neighborhood}: ${status}, ${formatCurrency(listing.listing_price)} listing price, ${formatCurrency(listing.price_per_square_foot)} per square foot, ${listing.bedrooms} bed, ${listing.bathrooms} bath, ${listing.square_footage} sq ft. HOA fees: ${formatCurrency(listing.hoa_fees)}/month. Annual tax: ${formatCurrency(listing.property_tax_information.annual_tax)} for ${listing.property_tax_information.tax_year}. School district: ${listing.school_district}. Walk Score: ${listing.walk_score}. Agent: ${listing.listing_agent_name} (${listing.listing_agent_contact_information.phone}, ${listing.listing_agent_contact_information.email}). Parking: ${listing.parking_details}.${salePrice}${openHouses} Features: ${listing.additional_features.join(", ")}.`;
+      });
+
+      return `Here are the AppFolio-style property listing details I can access:\n${listings.join("\n")}`;
+    }
+
     const unresolvedIssues = allowedData.issues.filter((issue) => issue.status !== "resolved");
     const outstandingRent = allowedData.payments.reduce((total, payment) => total + payment.outstanding_balance, 0);
     return `${building.name} has ${building.total_units} total units, ${building.occupied_units} occupied units, ${building.vacant_units} vacant units, ${unresolvedIssues.length} open maintenance issues, and ${formatCurrency(outstandingRent)} outstanding rent based on available demo payments.`;
@@ -261,6 +276,7 @@ export function getDataUsedSummary(debugData: AllowedData) {
   return [
     ...debugData.buildings.map((building) => building.name),
     ...debugData.units.map((unit) => `Unit ${unit.unit_number}`),
+    ...debugData.propertyListings.map((listing) => `Listing ${listing.id}`),
     ...debugData.issues.map((issue) => `Issue ${issue.id}`)
   ];
 }
@@ -270,6 +286,16 @@ function formatDate(value: string) {
     month: "long",
     day: "numeric",
     year: "numeric"
+  });
+}
+
+function formatDateTime(value: string) {
+  return new Date(value).toLocaleString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
   });
 }
 

@@ -7,6 +7,7 @@ const requiredCollections: Array<keyof AppFolioDataContext> = [
   "users",
   "buildings",
   "units",
+  "propertyListings",
   "tenants",
   "owners",
   "boardMembers",
@@ -31,6 +32,7 @@ export function serializeDataContext(dataContext: AppFolioDataContext) {
 
 export function parseDataContext(rawJson: string): AppFolioDataContext {
   const parsed = JSON.parse(rawJson) as Partial<AppFolioDataContext>;
+  parsed.propertyListings = parsed.propertyListings ?? [];
   const missing = requiredCollections.filter((collection) => !Array.isArray(parsed[collection]));
 
   if (missing.length > 0) {

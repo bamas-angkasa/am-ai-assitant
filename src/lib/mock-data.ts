@@ -11,6 +11,7 @@ import type {
   LiveChatEscalation,
   Owner,
   Payment,
+  PropertyListing,
   Tenant,
   Unit,
   User,
@@ -22,6 +23,10 @@ export const buildings: Building[] = [
     id: "bldg-001",
     name: "Vantage Residence Apartment",
     address: "1200 Market Street, San Francisco, CA",
+    city: "San Francisco",
+    state: "CA",
+    postal_code: "94102",
+    neighborhood: "Civic Center",
     property_type: "apartment",
     total_units: 20,
     occupied_units: 18,
@@ -30,6 +35,122 @@ export const buildings: Building[] = [
     assigned_manager: "Dian Property Admin",
     hoa_board_ids: ["board-001"],
     facilities: ["Elevator", "Secure lobby", "Bike storage", "Rooftop lounge"]
+  }
+];
+
+export const propertyListings: PropertyListing[] = [
+  {
+    id: "listing-001",
+    building_id: "bldg-001",
+    unit_id: "unit-103",
+    property_address: "1200 Market Street Unit 103",
+    city: "San Francisco",
+    state: "CA",
+    postal_code: "94102",
+    neighborhood: "Civic Center",
+    property_type: "apartment",
+    listing_price: 2750,
+    sale_price: null,
+    price_per_square_foot: 3.44,
+    bedrooms: 2,
+    bathrooms: 1,
+    square_footage: 800,
+    lot_size: "Shared multifamily parcel",
+    year_built: 2015,
+    days_on_appfolio: 12,
+    listing_date: "2026-05-10",
+    property_description:
+      "Bright two-bedroom apartment with secure lobby access, bike storage, updated kitchen finishes, and shared rooftop lounge access.",
+    photos: [
+      {
+        id: "photo-001",
+        url: "https://images.example.com/vantage/unit-103-living-room.jpg",
+        caption: "Living room with street-facing windows"
+      },
+      {
+        id: "photo-002",
+        url: "https://images.example.com/vantage/unit-103-kitchen.jpg",
+        caption: "Updated kitchen with stainless appliances"
+      },
+      {
+        id: "photo-003",
+        url: "https://images.example.com/vantage/rooftop-lounge.jpg",
+        caption: "Shared rooftop lounge"
+      }
+    ],
+    virtual_tour_links: ["https://tours.example.com/vantage/unit-103"],
+    property_status: "for_rent",
+    hoa_fees: 325,
+    property_tax_information: {
+      annual_tax: 6840,
+      tax_year: 2025,
+      assessed_value: 612000
+    },
+    school_district: "San Francisco Unified School District",
+    walk_score: 98,
+    listing_agent_name: "Dian Property Leasing",
+    listing_agent_contact_information: {
+      email: "leasing@dian.example.com",
+      phone: "555-0110"
+    },
+    open_house_dates: ["2026-05-24T11:00:00-07:00", "2026-05-28T17:30:00-07:00"],
+    heating_cooling_information: "Central heating with in-unit thermostat; portable AC permitted.",
+    parking_details: "Assigned garage parking available for $225 per month.",
+    additional_features: ["Fireplace", "Rooftop lounge", "Bike storage", "Secure lobby", "In-building laundry"]
+  },
+  {
+    id: "listing-002",
+    building_id: "bldg-001",
+    unit_id: "unit-204",
+    property_address: "1200 Market Street Unit 204",
+    city: "San Francisco",
+    state: "CA",
+    postal_code: "94102",
+    neighborhood: "Civic Center",
+    property_type: "condo",
+    listing_price: 745000,
+    sale_price: null,
+    price_per_square_foot: 782,
+    bedrooms: 2,
+    bathrooms: 2,
+    square_footage: 953,
+    lot_size: "Shared condominium parcel",
+    year_built: 2015,
+    days_on_appfolio: 36,
+    listing_date: "2026-04-16",
+    property_description:
+      "Two-bedroom, two-bath condo with elevator access, natural light, updated appliances, and close proximity to transit and downtown offices.",
+    photos: [
+      {
+        id: "photo-004",
+        url: "https://images.example.com/vantage/unit-204-primary-bedroom.jpg",
+        caption: "Primary bedroom"
+      },
+      {
+        id: "photo-005",
+        url: "https://images.example.com/vantage/unit-204-bathroom.jpg",
+        caption: "Updated bathroom"
+      }
+    ],
+    virtual_tour_links: ["https://tours.example.com/vantage/unit-204"],
+    property_status: "pending",
+    hoa_fees: 410,
+    property_tax_information: {
+      annual_tax: 8295,
+      tax_year: 2025,
+      assessed_value: 742500
+    },
+    school_district: "San Francisco Unified School District",
+    walk_score: 98,
+    listing_agent_name: "Avery Stone",
+    listing_agent_contact_information: {
+      email: "avery.stone@example.com",
+      phone: "555-0111"
+    },
+    open_house_dates: [],
+    heating_cooling_information: "Radiant heat; ceiling fans in bedrooms.",
+    parking_details: "One deeded garage space included.",
+    additional_features: ["Elevator", "Dishwasher", "Rooftop lounge", "Assigned parking", "Storage locker"]
   }
 ];
 
@@ -616,6 +737,7 @@ export const defaultDataContext: AppFolioDataContext = {
   users,
   buildings,
   units,
+  propertyListings,
   tenants,
   owners,
   boardMembers,

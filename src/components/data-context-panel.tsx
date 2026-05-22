@@ -36,6 +36,7 @@ export function DataContextPanel({ dataContext, status, onImport, onExport, onRe
       <div className="grid grid-cols-2 gap-2 text-xs text-[#667085]">
         <Metric label="Users" value={dataContext.users.length} />
         <Metric label="Units" value={dataContext.units.length} />
+        <Metric label="Listings" value={dataContext.propertyListings.length} />
         <Metric label="Tenants" value={dataContext.tenants.length} />
         <Metric label="Work orders" value={dataContext.issues.length} />
       </div>
