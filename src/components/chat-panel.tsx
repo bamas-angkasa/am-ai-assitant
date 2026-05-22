@@ -62,15 +62,16 @@ export function ChatPanel({ selectedUser, messages, isLoading, onSubmitQuestion,
 
   return (
     <section className="flex h-full min-h-0 flex-col bg-white">
-      <div className="flex h-16 flex-none items-center justify-between gap-3 border-b border-slate-200 px-8">
-        <div>
-          <h2 className="text-lg font-medium text-slate-950">Dian AI Assistant</h2>
+      <div className="flex h-14 flex-none items-center justify-between gap-3 border-b border-slate-200 px-4 sm:h-16 sm:px-8">
+        <div className="min-w-0">
+          <h2 className="truncate text-base font-medium text-slate-950 sm:text-lg">Dian AI Assistant</h2>
           <p className="sr-only">Viewing as {selectedUser.name} - {selectedUser.displayRole}</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="inline-flex h-8 items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-3 text-xs font-semibold tracking-wider text-slate-800 shadow-sm">
             <Circle className="h-2 w-2 fill-emerald-500 text-emerald-500" />
-            LIVE AGENT
+            <span className="hidden min-[420px]:inline">LIVE AGENT</span>
+            <span className="min-[420px]:hidden">LIVE</span>
           </div>
           <Button
             onClick={onClear}
@@ -85,16 +86,16 @@ export function ChatPanel({ selectedUser, messages, isLoading, onSubmitQuestion,
         </div>
       </div>
 
-      <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-8 py-6">
+      <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-8 sm:py-6">
         <div className="mx-auto max-w-3xl">
           <div className="space-y-5">
             {messages.map((message) => (
               <ChatMessage key={message.id} message={message} onConnectLiveAgent={onConnectLiveAgent} />
             ))}
             {isLoading ? (
-              <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-primary text-white shadow-sm">
-                  <Bot className="h-5 w-5" />
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-primary text-white shadow-sm sm:h-10 sm:w-10">
+                  <Bot className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <div className="rounded-lg bg-slate-100 px-4 py-3 text-sm text-slate-500 shadow-sm">
                   <span className="inline-flex items-center gap-1">
@@ -112,9 +113,9 @@ export function ChatPanel({ selectedUser, messages, isLoading, onSubmitQuestion,
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex-none border-t border-slate-200 bg-white px-8 py-3">
+      <form onSubmit={handleSubmit} className="flex-none border-t border-slate-200 bg-white px-3 py-3 sm:px-8">
         <div className="mx-auto max-w-3xl">
-          <div className="flex min-h-12 items-end gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-md transition focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15">
+          <div className="flex min-h-12 items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-md transition focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15">
             <textarea
               ref={textareaRef}
               value={input}
@@ -122,21 +123,21 @@ export function ChatPanel({ selectedUser, messages, isLoading, onSubmitQuestion,
               onKeyDown={handleKeyDown}
               rows={1}
               placeholder="Message Dian AI..."
-              className="min-h-6 flex-1 resize-none bg-transparent px-3 py-1 text-sm leading-6 outline-none placeholder:text-slate-400"
+              className="min-h-6 flex-1 resize-none bg-transparent px-2 py-0 text-left text-sm leading-6 outline-none placeholder:text-slate-400 sm:px-3"
               aria-label="Message Dian AI Assistant"
             />
             <Button
               type="submit"
               size="icon"
               disabled={!input.trim() || isLoading}
-              className="h-9 w-11 flex-none rounded-xl bg-primary text-white hover:bg-primary/95"
+              className="h-9 w-11 flex-none self-end rounded-xl bg-primary text-white hover:bg-primary/95"
               aria-label="Send message"
               title="Send"
             >
               <Send className="h-5 w-5" />
             </Button>
           </div>
-          <p className="mt-2 text-center font-mono text-[11px] tracking-[0.16em] text-slate-400">
+          <p className="mt-2 text-center font-mono text-[10px] tracking-[0.12em] text-slate-400 sm:text-[11px] sm:tracking-[0.16em]">
             AI can make mistakes. Verify important information.
           </p>
         </div>

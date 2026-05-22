@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Bot, Circle, UserRound } from "lucide-react";
+import { Bot, Circle, Settings2, UserRound, X } from "lucide-react";
 import { runAssistant } from "@/lib/assistant-engine";
 import { clearSavedDataContext, getDefaultDataContext, loadSavedDataContext, parseDataContext, saveDataContext, serializeDataContext } from "@/lib/data-context";
 import type { AppFolioDataContext, AssistantDebugState, ChatMessage, User } from "@/lib/types";
@@ -23,6 +23,7 @@ export function AppShell() {
   const [debugState, setDebugState] = useState<AssistantDebugState | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [dataStatus, setDataStatus] = useState("Using built-in master data.");
+  const [isMobileSettingsOpen, setIsMobileSettingsOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -44,6 +45,7 @@ export function AppShell() {
 
   function handleSelectUser(user: User) {
     setSelectedUser(user);
+    setIsMobileSettingsOpen(false);
     setDebugState(null);
     setMessages([
       createMessage("assistant", initialAssistantMessage),
@@ -120,27 +122,39 @@ export function AppShell() {
   return (
     <main className="h-screen overflow-hidden bg-white text-slate-950">
       <div className="flex h-screen flex-col">
-        <header className="flex h-16 flex-none items-center justify-between border-b border-slate-200 bg-white px-6">
-          <div className="flex items-center gap-4">
+        <header className="flex h-16 flex-none items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
             <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-white shadow-sm">
               <Bot className="h-4 w-4" />
             </div>
-            <h1 className="text-lg font-semibold text-primary">Dian AI Assistant</h1>
+            <div className="min-w-0">
+              <h1 className="truncate text-base font-semibold text-primary sm:text-lg">Dian AI Assistant</h1>
+              <p className="truncate text-xs text-slate-500 lg:hidden">{selectedUser.name} - {selectedUser.displayRole}</p>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <div className="hidden h-9 items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-4 text-sm font-semibold tracking-wide text-slate-700 sm:flex">
               <Circle className="h-2 w-2 fill-emerald-500 text-emerald-500" />
               Permission: {permissionTone}
             </div>
-            <span className="text-lg font-medium tracking-wide text-slate-800">System Admin</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-white shadow-sm">
+            <span className="hidden text-lg font-medium tracking-wide text-slate-800 md:inline">System Admin</span>
+            <button
+              type="button"
+              onClick={() => setIsMobileSettingsOpen(true)}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-white shadow-sm lg:hidden"
+              aria-label="Open profile settings"
+              title="Profile settings"
+            >
+              <Settings2 className="h-4 w-4" />
+            </button>
+            <div className="hidden h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-white shadow-sm lg:flex">
               <UserRound className="h-4 w-4" />
             </div>
           </div>
         </header>
 
-        <div className="grid min-h-0 flex-1 lg:grid-cols-[300px_minmax(0,1fr)_380px]">
-          <aside className="flex min-h-0 flex-col bg-slate-50">
+        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)_380px]">
+          <aside className="hidden min-h-0 flex-col bg-slate-50 lg:flex">
             <UserSelector users={dataContext.users} selectedUser={selectedUser} onSelectUser={handleSelectUser} />
             <div className="flex-none border-r border-slate-200 bg-slate-50">
               <RoleCard user={selectedUser} />
@@ -164,8 +178,51 @@ export function AppShell() {
             suggestedQuestions={<SuggestedQuestions role={selectedUser.role} onAsk={handleSubmitQuestion} compact />}
           />
 
-          <AssistantDebugPanel debugState={debugState} selectedUser={selectedUser} />
+          <div className="hidden min-h-0 lg:block">
+            <AssistantDebugPanel debugState={debugState} selectedUser={selectedUser} />
+          </div>
         </div>
+
+        {isMobileSettingsOpen ? (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <button
+              type="button"
+              className="absolute inset-0 bg-slate-950/40"
+              aria-label="Close profile settings"
+              onClick={() => setIsMobileSettingsOpen(false)}
+            />
+            <section className="absolute inset-y-0 right-0 flex w-full max-w-sm flex-col bg-slate-50 shadow-2xl">
+              <div className="flex h-16 flex-none items-center justify-between border-b border-slate-200 bg-white px-4">
+                <div>
+                  <h2 className="text-base font-semibold text-slate-950">Profile Settings</h2>
+                  <p className="text-xs text-slate-500">Persona, access, master data</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileSettingsOpen(false)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600"
+                  aria-label="Close profile settings"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto">
+                <UserSelector users={dataContext.users} selectedUser={selectedUser} onSelectUser={handleSelectUser} />
+                <RoleCard user={selectedUser} />
+                <DataContextPanel
+                  dataContext={dataContext}
+                  status={dataStatus}
+                  onImport={handleImportDataContext}
+                  onExport={handleExportDataContext}
+                  onReset={handleResetDataContext}
+                />
+                <div className="mx-4 mb-4 overflow-hidden rounded-lg">
+                  <AssistantDebugPanel debugState={debugState} selectedUser={selectedUser} />
+                </div>
+              </div>
+            </section>
+          </div>
+        ) : null}
       </div>
     </main>
   );
