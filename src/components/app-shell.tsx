@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Moon, Shield, Sun } from "lucide-react";
-import { users } from "@/lib/mock-data";
+import { Bot, Circle, UserRound } from "lucide-react";
 import { runAssistant } from "@/lib/assistant-engine";
-import type { AssistantDebugState, ChatMessage, User } from "@/lib/types";
-import { cn, nowLabel } from "@/lib/utils";
+import { getDefaultDataContext, loadSavedDataContext } from "@/lib/data-context";
+import type { AppFolioDataContext, AssistantDebugState, ChatMessage, User } from "@/lib/types";
+import { nowLabel } from "@/lib/utils";
 import { AssistantDebugPanel } from "./assistant-debug-panel";
 import { ChatPanel } from "./chat-panel";
 import { RoleCard } from "./role-card";
@@ -16,18 +16,26 @@ const initialAssistantMessage =
   "Hi, I'm Dian AI Assistant. I can help with rent, lease, maintenance issues, building updates, and property-related questions. Please select a user role and ask a question.";
 
 export function AppShell() {
-  const [selectedUser, setSelectedUser] = useState<User>(users[4]);
+  const [dataContext, setDataContext] = useState<AppFolioDataContext>(() => getDefaultDataContext());
+  const [selectedUser, setSelectedUser] = useState<User>(() => getDefaultDataContext().users[4]);
   const [messages, setMessages] = useState<ChatMessage[]>(() => [createMessage("assistant", initialAssistantMessage)]);
   const [debugState, setDebugState] = useState<AssistantDebugState | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDark);
-  }, [isDark]);
+    try {
+      const saved = loadSavedDataContext();
+      if (!saved) return;
+
+      setDataContext(saved);
+      setSelectedUser(saved.users[4] ?? saved.users[0]);
+    } catch (error) {
+      console.warn(error instanceof Error ? `Saved context could not be loaded: ${error.message}` : "Saved context could not be loaded.");
+    }
+  }, []);
 
   const permissionTone = useMemo(() => {
-    if (!debugState) return "Ready";
+    if (!debugState) return "Validated";
     return debugState.permission.allowed ? "Allowed" : "Denied";
   }, [debugState]);
 
@@ -46,7 +54,7 @@ export function AppShell() {
     setIsLoading(true);
 
     window.setTimeout(() => {
-      const response = runAssistant(selectedUser, question);
+      const response = runAssistant(selectedUser, question, dataContext);
       setDebugState(response.debug);
       setMessages((current) => [
         ...current,
@@ -69,50 +77,32 @@ export function AppShell() {
   }
 
   return (
-    <main className="min-h-screen bg-background px-4 py-5 text-foreground sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-[1500px]">
-        <header className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
-              <Shield className="h-3.5 w-3.5 text-primary" />
-              Permission-first property assistant demo
+    <main className="h-screen overflow-hidden bg-white text-slate-950">
+      <div className="flex h-screen flex-col">
+        <header className="flex h-16 flex-none items-center justify-between border-b border-slate-200 bg-white px-6">
+          <div className="flex items-center gap-4">
+            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-white shadow-sm">
+              <Bot className="h-4 w-4" />
             </div>
-            <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">Dian AI Assistant</h1>
-            <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-              AI assistant for tenants, owners, HOA boards, and property managers.
-            </p>
+            <h1 className="text-lg font-semibold text-primary">Dian AI Assistant</h1>
           </div>
-          <div className="flex items-center gap-2">
-            <div
-              className={cn(
-                "rounded-full border px-3 py-1.5 text-xs font-medium",
-                permissionTone === "Denied"
-                  ? "border-destructive/30 bg-destructive/10 text-destructive"
-                  : permissionTone === "Allowed"
-                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300"
-                    : "border-border bg-card text-muted-foreground"
-              )}
-            >
+          <div className="flex items-center gap-4">
+            <div className="hidden h-9 items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-4 text-sm font-semibold tracking-wide text-slate-700 sm:flex">
+              <Circle className="h-2 w-2 fill-emerald-500 text-emerald-500" />
               Permission: {permissionTone}
             </div>
-            <button
-              type="button"
-              onClick={() => setIsDark((value) => !value)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card transition hover:bg-muted"
-              aria-label="Toggle theme"
-              title="Toggle theme"
-            >
-              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
+            <span className="text-lg font-medium tracking-wide text-slate-800">System Admin</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-white shadow-sm">
+              <UserRound className="h-4 w-4" />
+            </div>
           </div>
         </header>
 
-        <div className="grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)_340px]">
-          <div className="space-y-5">
-            <UserSelector users={users} selectedUser={selectedUser} onSelectUser={handleSelectUser} />
+        <div className="grid min-h-0 flex-1 lg:grid-cols-[300px_minmax(0,1fr)_380px]">
+          <aside className="flex min-h-0 flex-col bg-slate-50">
+            <UserSelector users={dataContext.users} selectedUser={selectedUser} onSelectUser={handleSelectUser} />
             <RoleCard user={selectedUser} />
-            <SuggestedQuestions role={selectedUser.role} onAsk={handleSubmitQuestion} />
-          </div>
+          </aside>
 
           <ChatPanel
             selectedUser={selectedUser}
@@ -121,11 +111,10 @@ export function AppShell() {
             onSubmitQuestion={handleSubmitQuestion}
             onClear={handleClear}
             onConnectLiveAgent={handleConnectLiveAgent}
+            suggestedQuestions={<SuggestedQuestions role={selectedUser.role} onAsk={handleSubmitQuestion} compact />}
           />
 
-          <div className="lg:sticky lg:top-5 lg:self-start">
-            <AssistantDebugPanel debugState={debugState} />
-          </div>
+          <AssistantDebugPanel debugState={debugState} selectedUser={selectedUser} />
         </div>
       </div>
     </main>

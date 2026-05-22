@@ -19,10 +19,14 @@ const config: Config = {
         "card-foreground": "hsl(var(--card-foreground))",
         primary: "hsl(var(--primary))",
         "primary-foreground": "hsl(var(--primary-foreground))",
+        secondary: "hsl(var(--secondary))",
+        "secondary-foreground": "hsl(var(--secondary-foreground))",
+        ring: "hsl(var(--ring))",
         destructive: "hsl(var(--destructive))"
       },
       boxShadow: {
-        soft: "0 10px 30px rgba(15, 23, 42, 0.08)"
+        soft: "0 18px 45px rgba(15, 23, 42, 0.08)",
+        panel: "0 1px 2px rgba(15, 23, 42, 0.06), 0 20px 60px rgba(15, 23, 42, 0.08)"
       }
     }
   },

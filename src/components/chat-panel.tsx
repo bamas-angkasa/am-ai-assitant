@@ -1,10 +1,11 @@
 "use client";
 
-import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
-import { Send, Trash2 } from "lucide-react";
+import type { ReactNode } from "react";
+import { FormEvent, KeyboardEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Bot, Circle, Send, Trash2 } from "lucide-react";
 import type { ChatMessage as ChatMessageType, User } from "@/lib/types";
-import { nowLabel } from "@/lib/utils";
 import { ChatMessage } from "./chat-message";
+import { Button } from "./ui/button";
 
 interface ChatPanelProps {
   selectedUser: User;
@@ -13,15 +14,35 @@ interface ChatPanelProps {
   onSubmitQuestion: (question: string) => void;
   onClear: () => void;
   onConnectLiveAgent: () => void;
+  suggestedQuestions?: ReactNode;
 }
 
-export function ChatPanel({ selectedUser, messages, isLoading, onSubmitQuestion, onClear, onConnectLiveAgent }: ChatPanelProps) {
+export function ChatPanel({ selectedUser, messages, isLoading, onSubmitQuestion, onClear, onConnectLiveAgent, suggestedQuestions }: ChatPanelProps) {
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
+
+  useLayoutEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const maxHeight = 168;
+    textarea.style.height = "0px";
+
+    if (!input.trim()) {
+      textarea.style.height = "24px";
+      textarea.style.overflowY = "hidden";
+      return;
+    }
+
+    const nextHeight = Math.min(textarea.scrollHeight, maxHeight);
+    textarea.style.height = `${nextHeight}px`;
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden";
+  }, [input]);
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -40,63 +61,85 @@ export function ChatPanel({ selectedUser, messages, isLoading, onSubmitQuestion,
   }
 
   return (
-    <section className="flex min-h-[680px] flex-col rounded-lg border border-border bg-card shadow-soft lg:min-h-[calc(100vh-9.5rem)]">
-      <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+    <section className="flex h-full min-h-0 flex-col bg-white">
+      <div className="flex h-16 flex-none items-center justify-between gap-3 border-b border-slate-200 px-8">
         <div>
-          <h2 className="text-sm font-semibold">Dian AI Assistant</h2>
-          <p className="text-xs text-muted-foreground">Viewing as {selectedUser.name} - {selectedUser.displayRole}</p>
+          <h2 className="text-lg font-medium text-slate-950">Dian AI Assistant</h2>
+          <p className="sr-only">Viewing as {selectedUser.name} - {selectedUser.displayRole}</p>
         </div>
-        <button
-          type="button"
-          onClick={onClear}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition hover:bg-muted hover:text-foreground"
-          aria-label="Clear chat"
-          title="Clear chat"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
-      </div>
-
-      <div className="thin-scrollbar flex-1 space-y-4 overflow-y-auto bg-muted/35 px-4 py-5">
-        {messages.map((message) => (
-          <ChatMessage key={message.id} message={message} onConnectLiveAgent={onConnectLiveAgent} />
-        ))}
-        {isLoading ? (
-          <div className="flex justify-start">
-            <div className="rounded-2xl rounded-bl-md border border-border bg-card px-4 py-3 text-sm text-muted-foreground shadow-sm">
-              <span className="inline-flex items-center gap-1">
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.2s]" />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.1s]" />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground" />
-              </span>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="inline-flex h-8 items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-3 text-xs font-semibold tracking-wider text-slate-800 shadow-sm">
+            <Circle className="h-2 w-2 fill-emerald-500 text-emerald-500" />
+            LIVE AGENT
           </div>
-        ) : null}
-        <div ref={bottomRef} />
+          <Button
+            onClick={onClear}
+            variant="ghost"
+            size="icon"
+            className="text-slate-500 hover:text-slate-950"
+            aria-label="Clear chat"
+            title="Clear chat"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="border-t border-border p-3">
-        <div className="flex items-end gap-2 rounded-2xl border border-border bg-background p-2">
-          <textarea
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            onKeyDown={handleKeyDown}
-            rows={1}
-            placeholder="Ask about rent, lease, issues, units, or building updates..."
-            className="max-h-32 min-h-10 flex-1 resize-none bg-transparent px-2 py-2 text-sm outline-none placeholder:text-muted-foreground"
-            aria-label="Message Dian AI Assistant"
-          />
-          <button
-            type="submit"
-            disabled={!input.trim() || isLoading}
-            className="inline-flex h-10 w-10 flex-none items-center justify-center rounded-full bg-primary text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
-            aria-label="Send message"
-            title="Send"
-          >
-            <Send className="h-4 w-4" />
-          </button>
+      <div className="thin-scrollbar min-h-0 flex-1 overflow-y-auto px-8 py-6">
+        <div className="mx-auto max-w-3xl">
+          <div className="space-y-5">
+            {messages.map((message) => (
+              <ChatMessage key={message.id} message={message} onConnectLiveAgent={onConnectLiveAgent} />
+            ))}
+            {isLoading ? (
+              <div className="flex items-start gap-4">
+                <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-primary text-white shadow-sm">
+                  <Bot className="h-5 w-5" />
+                </div>
+                <div className="rounded-lg bg-slate-100 px-4 py-3 text-sm text-slate-500 shadow-sm">
+                  <span className="inline-flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-500 [animation-delay:-0.2s]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-500 [animation-delay:-0.1s]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-500" />
+                  </span>
+                </div>
+              </div>
+            ) : null}
+            <div ref={bottomRef} />
+          </div>
+
+          {suggestedQuestions ? <div className="mt-8 pt-4">{suggestedQuestions}</div> : null}
         </div>
-        <p className="mt-2 text-center text-[11px] text-muted-foreground">Enter to send - Shift+Enter for a new line - {nowLabel()}</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="flex-none border-t border-slate-200 bg-white px-8 py-3">
+        <div className="mx-auto max-w-3xl">
+          <div className="flex min-h-12 items-end gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-md transition focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15">
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              onKeyDown={handleKeyDown}
+              rows={1}
+              placeholder="Message Dian AI..."
+              className="min-h-6 flex-1 resize-none bg-transparent px-3 py-1 text-sm leading-6 outline-none placeholder:text-slate-400"
+              aria-label="Message Dian AI Assistant"
+            />
+            <Button
+              type="submit"
+              size="icon"
+              disabled={!input.trim() || isLoading}
+              className="h-9 w-11 flex-none rounded-xl bg-primary text-white hover:bg-primary/95"
+              aria-label="Send message"
+              title="Send"
+            >
+              <Send className="h-5 w-5" />
+            </Button>
+          </div>
+          <p className="mt-2 text-center font-mono text-[11px] tracking-[0.16em] text-slate-400">
+            AI can make mistakes. Verify important information.
+          </p>
+        </div>
       </form>
     </section>
   );

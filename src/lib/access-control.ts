@@ -1,9 +1,41 @@
-import { announcements, buildings, issues, leases, payments, tenants, units } from "./mock-data";
-import type { AllowedData, AssistantIntent, ExtractedEntities, PermissionResult, User } from "./types";
+import { defaultDataContext } from "./mock-data";
+import type { AllowedData, AppFolioDataContext, AssistantIntent, ExtractedEntities, PermissionResult, User } from "./types";
 
-export function getAllowedData(user: User): AllowedData {
+export function getAllowedData(user: User, dataContext: AppFolioDataContext = defaultDataContext): AllowedData {
+  const {
+    announcements,
+    attachments,
+    boardMembers,
+    buildings,
+    communications,
+    invoices,
+    issues,
+    leases,
+    liveChatEscalations,
+    owners,
+    payments,
+    tenants,
+    units,
+    vendors
+  } = dataContext;
+
   if (user.role === "admin") {
-    return { buildings, units, tenants, leases, payments, issues, announcements };
+    return {
+      buildings,
+      units,
+      tenants,
+      owners,
+      boardMembers,
+      leases,
+      payments,
+      issues,
+      vendors,
+      invoices,
+      attachments,
+      communications,
+      announcements,
+      liveChatEscalations
+    };
   }
 
   if (user.role === "building_owner") {
@@ -11,33 +43,59 @@ export function getAllowedData(user: User): AllowedData {
     const scopedUnits = units.filter((unit) => buildingIds.includes(unit.building_id));
     const scopedUnitIds = scopedUnits.map((unit) => unit.id);
     const scopedTenantIds = scopedUnits.map((unit) => unit.tenant_id).filter(Boolean) as string[];
+    const scopedIssues = issues.filter((issue) => buildingIds.includes(issue.building_id));
+    const scopedWorkOrderIds = scopedIssues.map((issue) => issue.work_order_id);
 
     return {
       buildings: buildings.filter((building) => buildingIds.includes(building.id)),
       units: scopedUnits,
       tenants: tenants.filter((tenant) => scopedTenantIds.includes(tenant.id)),
+      owners: owners.filter((owner) => owner.id === user.ownerId || owner.owned_property_ids.some((id) => buildingIds.includes(id))),
+      boardMembers: boardMembers.filter((member) => buildingIds.includes(member.building_id)),
       leases: leases.filter((lease) => scopedUnitIds.includes(lease.unit_id)),
       payments: payments.filter((payment) => scopedUnitIds.includes(payment.unit_id)),
-      issues: issues.filter((issue) => buildingIds.includes(issue.building_id)),
-      announcements: announcements.filter((announcement) => buildingIds.includes(announcement.building_id))
+      issues: scopedIssues,
+      vendors: vendors.filter((vendor) => scopedIssues.some((issue) => issue.assigned_vendor_id === vendor.id)),
+      invoices: invoices.filter((invoice) => buildingIds.includes(invoice.property_id)),
+      attachments: attachments.filter(
+        (attachment) =>
+          attachment.visibility === "owner" ||
+          attachment.visibility === "shared" ||
+          scopedUnitIds.includes(attachment.related_entity_id) ||
+          scopedWorkOrderIds.includes(attachment.related_entity_id)
+      ),
+      communications: communications.filter((message) => scopedTenantIds.includes(message.related_tenant_id ?? "") || scopedUnitIds.includes(message.related_unit_id ?? "")),
+      announcements: announcements.filter((announcement) => buildingIds.includes(announcement.building_id)),
+      liveChatEscalations: liveChatEscalations.filter((escalation) => scopedIssues.some((issue) => issue.id === escalation.issue_id))
     };
   }
 
   if (user.role === "hoa_board") {
     const buildingIds = user.buildingIds ?? [];
+    const scopedIssues = issues.filter(
+      (issue) =>
+        buildingIds.includes(issue.building_id) &&
+        (issue.scope === "common_area" || issue.category === "building_maintenance" || issue.category === "safety")
+    );
+    const scopedWorkOrderIds = scopedIssues.map((issue) => issue.work_order_id);
 
     return {
       buildings: buildings.filter((building) => buildingIds.includes(building.id)),
       units: [],
       tenants: [],
+      owners: [],
+      boardMembers: boardMembers.filter((member) => buildingIds.includes(member.building_id)),
       leases: [],
       payments: [],
-      issues: issues.filter(
-        (issue) =>
-          buildingIds.includes(issue.building_id) &&
-          (issue.scope === "common_area" || issue.category === "building_maintenance" || issue.category === "safety")
+      issues: scopedIssues,
+      vendors: vendors.filter((vendor) => scopedIssues.some((issue) => issue.assigned_vendor_id === vendor.id)),
+      invoices: [],
+      attachments: attachments.filter(
+        (attachment) => attachment.visibility === "board" || attachment.visibility === "shared" || scopedWorkOrderIds.includes(attachment.related_entity_id)
       ),
-      announcements: announcements.filter((announcement) => buildingIds.includes(announcement.building_id))
+      communications: [],
+      announcements: announcements.filter((announcement) => buildingIds.includes(announcement.building_id)),
+      liveChatEscalations: []
     };
   }
 
@@ -45,15 +103,30 @@ export function getAllowedData(user: User): AllowedData {
     const unitIds = user.unitIds ?? [];
     const scopedUnits = units.filter((unit) => unitIds.includes(unit.id));
     const scopedTenantIds = scopedUnits.map((unit) => unit.tenant_id).filter(Boolean) as string[];
+    const scopedIssues = issues.filter((issue) => issue.unit_id !== null && unitIds.includes(issue.unit_id));
+    const scopedWorkOrderIds = scopedIssues.map((issue) => issue.work_order_id);
 
     return {
       buildings: buildings.filter((building) => scopedUnits.some((unit) => unit.building_id === building.id)),
       units: scopedUnits,
       tenants: tenants.filter((tenant) => scopedTenantIds.includes(tenant.id)),
+      owners: owners.filter((owner) => owner.id === user.unitOwnerId),
+      boardMembers: [],
       leases: leases.filter((lease) => unitIds.includes(lease.unit_id)),
       payments: payments.filter((payment) => unitIds.includes(payment.unit_id)),
-      issues: issues.filter((issue) => issue.unit_id !== null && unitIds.includes(issue.unit_id)),
-      announcements: announcements.filter((announcement) => scopedUnits.some((unit) => unit.building_id === announcement.building_id))
+      issues: scopedIssues,
+      vendors: vendors.filter((vendor) => scopedIssues.some((issue) => issue.assigned_vendor_id === vendor.id)),
+      invoices: invoices.filter((invoice) => scopedWorkOrderIds.includes(invoice.work_order_id)),
+      attachments: attachments.filter(
+        (attachment) =>
+          attachment.visibility === "owner" ||
+          attachment.visibility === "shared" ||
+          unitIds.includes(attachment.related_entity_id) ||
+          scopedWorkOrderIds.includes(attachment.related_entity_id)
+      ),
+      communications: communications.filter((message) => unitIds.includes(message.related_unit_id ?? "")),
+      announcements: announcements.filter((announcement) => scopedUnits.some((unit) => unit.building_id === announcement.building_id)),
+      liveChatEscalations: liveChatEscalations.filter((escalation) => scopedIssues.some((issue) => issue.id === escalation.issue_id))
     };
   }
 
@@ -62,19 +135,38 @@ export function getAllowedData(user: User): AllowedData {
   const paymentIds = user.paymentIds ?? [];
   const issueIds = user.issueIds ?? [];
   const tenantId = user.tenantId;
+  const scopedIssues = issues.filter((issue) => issueIds.includes(issue.id));
+  const scopedWorkOrderIds = scopedIssues.map((issue) => issue.work_order_id);
 
   return {
     buildings: buildings.filter((building) => units.some((unit) => unitIds.includes(unit.id) && unit.building_id === building.id)),
     units: units.filter((unit) => unitIds.includes(unit.id)),
     tenants: tenants.filter((tenant) => tenant.id === tenantId),
+    owners: [],
+    boardMembers: [],
     leases: leases.filter((lease) => leaseIds.includes(lease.id)),
     payments: payments.filter((payment) => paymentIds.includes(payment.id)),
-    issues: issues.filter((issue) => issueIds.includes(issue.id)),
-    announcements: announcements.filter((announcement) => units.some((unit) => unitIds.includes(unit.id) && unit.building_id === announcement.building_id))
+    issues: scopedIssues,
+    vendors: vendors.filter((vendor) => scopedIssues.some((issue) => issue.assigned_vendor_id === vendor.id)),
+    invoices: [],
+    attachments: attachments.filter(
+      (attachment) =>
+        attachment.visibility === "tenant" &&
+        (unitIds.includes(attachment.related_entity_id) || scopedWorkOrderIds.includes(attachment.related_entity_id))
+    ),
+    communications: communications.filter((message) => message.related_tenant_id === tenantId || unitIds.includes(message.related_unit_id ?? "")),
+    announcements: announcements.filter((announcement) => units.some((unit) => unitIds.includes(unit.id) && unit.building_id === announcement.building_id)),
+    liveChatEscalations: liveChatEscalations.filter((escalation) => escalation.user_id === user.id)
   };
 }
 
-export function checkPermission(user: User, intent: AssistantIntent, entities: ExtractedEntities, allowedData: AllowedData): PermissionResult {
+export function checkPermission(
+  user: User,
+  intent: AssistantIntent,
+  entities: ExtractedEntities,
+  allowedData: AllowedData,
+  dataContext: AppFolioDataContext = defaultDataContext
+): PermissionResult {
   if (intent === "out_of_scope") {
     return { allowed: false, reason: "This question is outside the supported property management demo scope.", dataUsed: [] };
   }
@@ -83,12 +175,20 @@ export function checkPermission(user: User, intent: AssistantIntent, entities: E
     return { allowed: true, reason: "No sensitive property records are needed for this response.", dataUsed: [] };
   }
 
+  if (intent === "user_profile") {
+    return {
+      allowed: true,
+      reason: "The selected user can view their own profile and linked account summary.",
+      dataUsed: [`User ${user.id}`, ...allowedData.units.map((unit) => `Unit ${unit.unit_number}`)]
+    };
+  }
+
   if (intent === "unauthorized_access") {
     return denyForRole(user);
   }
 
   if (entities.issueId) {
-    const issueExists = issues.some((issue) => issue.id === entities.issueId);
+    const issueExists = dataContext.issues.some((issue) => issue.id === entities.issueId);
     const allowedIssue = allowedData.issues.find((issue) => issue.id === entities.issueId);
 
     if (!issueExists) {

@@ -1,6 +1,6 @@
-import { issues, tenants, units } from "./mock-data";
+import { defaultDataContext } from "./mock-data";
 import { checkPermission, getAllowedData } from "./access-control";
-import type { AllowedData, AssistantIntent, AssistantResponse, ExtractedEntities, PermissionResult, User } from "./types";
+import type { AllowedData, AppFolioDataContext, AssistantIntent, AssistantResponse, ExtractedEntities, PermissionResult, User } from "./types";
 import { formatCurrency, formatStatus } from "./utils";
 
 export function detectIntent(question: string): AssistantIntent {
@@ -9,6 +9,7 @@ export function detectIntent(question: string): AssistantIntent {
   if (/(flood|flooding|emergency|urgent(?! attention)|fire|burst|gas leak|danger)/.test(text)) return "emergency_issue";
   if (/(live agent|human|person|representative|connect me|talk to someone)/.test(text)) return "request_live_agent";
   if (/(called|phone|answered|answer|nobody|no one|complain|complaint)/.test(text)) return "complaint_followup";
+  if (/(my profile|profile|who am i|my name|my phone|my number|my address|contact info|contact information)/.test(text)) return "user_profile";
   if (/(owe|rent|payment|balance|paid|outstanding)/.test(text)) {
     return "check_payment_balance";
   }
@@ -23,11 +24,11 @@ export function detectIntent(question: string): AssistantIntent {
   return "out_of_scope";
 }
 
-export function extractEntities(question: string): ExtractedEntities {
+export function extractEntities(question: string, dataContext: AppFolioDataContext = defaultDataContext): ExtractedEntities {
   const issueId = question.match(/ISS-\d{4}/i)?.[0]?.toUpperCase();
-  const unitNumber = question.match(/(?:unit\s*)?(10[1-9])/i)?.[1];
-  const unit = unitNumber ? units.find((item) => item.unit_number === unitNumber) : undefined;
-  const tenant = tenants.find((item) => question.toLowerCase().includes(item.name.split(" ")[0].toLowerCase()));
+  const unitNumber = question.match(/(?:unit\s*)?(\d{3,4}[A-Z]?)/i)?.[1];
+  const unit = unitNumber ? dataContext.units.find((item) => item.unit_number.toLowerCase() === unitNumber.toLowerCase()) : undefined;
+  const tenant = dataContext.tenants.find((item) => question.toLowerCase().includes(item.name.split(" ")[0].toLowerCase()));
   const keywords = ["rent", "lease", "elevator", "payment", "maintenance", "issue", "unit", "building", "safety", "vacant", "flooding"].filter((keyword) =>
     question.toLowerCase().includes(keyword)
   );
@@ -42,11 +43,11 @@ export function extractEntities(question: string): ExtractedEntities {
   };
 }
 
-export function runAssistant(user: User, question: string): AssistantResponse {
+export function runAssistant(user: User, question: string, dataContext: AppFolioDataContext = defaultDataContext): AssistantResponse {
   const intent = detectIntent(question);
-  const entities = extractEntities(question);
-  const allowedData = getAllowedData(user);
-  const permission = checkPermission(user, intent, entities, allowedData);
+  const entities = extractEntities(question, dataContext);
+  const allowedData = getAllowedData(user, dataContext);
+  const permission = checkPermission(user, intent, entities, allowedData, dataContext);
   const answer = generateAnswer(user, question, intent, entities, allowedData, permission);
   const escalationNeeded = shouldEscalateToLiveAgent(question, intent, permission, answer);
 
@@ -99,6 +100,18 @@ export function generateAnswer(
     return "Of course. I can connect you with a live agent from the property management team now.";
   }
 
+  if (intent === "user_profile") {
+    const linkedTenant = allowedData.tenants.find((tenant) => tenant.id === user.tenantId);
+    const linkedOwner = allowedData.owners.find((owner) => owner.id === user.ownerId || owner.id === user.unitOwnerId);
+    const linkedBoardMember = allowedData.boardMembers.find((member) => member.id === user.hoaId);
+    const unitLabels = allowedData.units.map((unit) => `Unit ${unit.unit_number}`).join(", ") || "None";
+    const accountStatus = linkedTenant?.account_status ? ` Account status: ${formatStatus(linkedTenant.account_status)}.` : "";
+    const ownerSummary = linkedOwner ? ` Owner distribution: ${linkedOwner.payment_distribution_summary}` : "";
+    const boardSummary = linkedBoardMember ? ` HOA association: ${linkedBoardMember.association}.` : "";
+
+    return `Your profile is ${user.name}, ${user.displayRole}. Email: ${user.email}. Phone: ${user.phone}. Address: ${user.address}. Linked units: ${unitLabels}.${accountStatus}${ownerSummary}${boardSummary}`;
+  }
+
   if (intent === "check_issue_status") {
     const issue = entities.issueId
       ? allowedData.issues.find((item) => item.id === entities.issueId)
@@ -113,7 +126,9 @@ export function generateAnswer(
       return "The elevator issue is currently in progress. Inspection has been completed, and the replacement part has been ordered.";
     }
 
-    return `Your issue ${issue.id}, "${issue.title}", is currently ${issue.status.replace("_", " ")}. ${issue.last_update}`;
+    const vendor = issue.assigned_vendor_id ? allowedData.vendors.find((item) => item.id === issue.assigned_vendor_id) : undefined;
+    const vendorLabel = vendor ? ` Assigned vendor: ${vendor.name} (${vendor.phone}).` : "";
+    return `Your issue ${issue.id}, "${issue.title}", is currently ${issue.status.replace("_", " ")}. ${issue.last_update}${vendorLabel}`;
   }
 
   if (intent === "check_payment_balance") {
@@ -126,13 +141,13 @@ export function generateAnswer(
         const unit = allowedData.units.find((item) => item.id === payment.unit_id);
         const tenant = allowedData.tenants.find((item) => item.id === payment.tenant_id);
         const tenantLabel = tenant ? `${tenant.name}, ` : "";
-        return `${tenantLabel}Unit ${unit?.unit_number ?? payment.unit_id}: ${formatCurrency(payment.outstanding_balance)} outstanding for ${payment.period}. Status: ${formatStatus(payment.status)}.`;
+        return `${tenantLabel}Unit ${unit?.unit_number ?? payment.unit_id}: ${formatCurrency(payment.outstanding_balance)} outstanding for ${payment.period}. Status: ${formatStatus(payment.status)}. Late fee: ${formatCurrency(payment.late_fee)}.`;
       });
       return `Here is the outstanding rent summary based on records you can access:\n${lines.join("\n")}`;
     }
 
     const payment = allowedData.payments[0];
-    return `For ${payment.period}, your rent amount is ${formatCurrency(payment.amount_due)}. You have paid ${formatCurrency(payment.amount_paid)}, so your outstanding balance is ${formatCurrency(payment.outstanding_balance)}.`;
+    return `For ${payment.period}, your rent amount is ${formatCurrency(payment.amount_due)}. You have paid ${formatCurrency(payment.amount_paid)}, so your outstanding balance is ${formatCurrency(payment.outstanding_balance)}. Late fee: ${formatCurrency(payment.late_fee)}.`;
   }
 
   if (intent === "check_lease_info") {
@@ -156,7 +171,7 @@ export function generateAnswer(
     const lines = scopedUnits.map((unit) => {
       const tenant = allowedData.tenants.find((item) => item.id === unit.tenant_id);
       const occupant = tenant ? `occupied by ${tenant.name}` : "vacant";
-      return `Unit ${unit.unit_number} is ${occupant} with monthly rent of ${formatCurrency(unit.monthly_rent)}.`;
+      return `Unit ${unit.unit_number} is ${occupant}, ${unit.bedrooms} bed / ${unit.bathrooms} bath, ${formatStatus(unit.availability_status)}, with monthly rent of ${formatCurrency(unit.monthly_rent)}.`;
     });
 
     if (user.role === "unit_owner") {
