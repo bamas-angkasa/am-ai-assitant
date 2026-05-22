@@ -3,19 +3,25 @@
 @tailwind utilities;
 
 :root {
-  --background: 210 24% 97%;
-  --foreground: 222 47% 11%;
-  --muted: 214 22% 93%;
-  --muted-foreground: 215 17% 43%;
-  --border: 214 24% 86%;
+  --background: 210 100% 99%;
+  --foreground: 221 39% 11%;
+  --muted: 255 100% 97%;
+  --muted-foreground: 218 15% 40%;
+  --border: 228 24% 92%;
   --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
-  --primary: 221 83% 53%;
+  --card-foreground: 221 39% 11%;
+  --primary: 247 84% 69%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 210 27% 96%;
-  --secondary-foreground: 222 47% 16%;
-  --ring: 221 83% 53%;
+  --secondary: 255 100% 97%;
+  --secondary-foreground: 221 39% 11%;
+  --ring: 247 84% 69%;
   --destructive: 0 72% 51%;
+  --primary-soft: #f3efff;
+  --primary-border: #c9b8ff;
+  --text-secondary: #667085;
+  --text-muted: #98a2b3;
+  --success: #4caf73;
+  --success-bg: #eaf8ef;
 }
 
 .dark {
@@ -40,7 +46,11 @@
 
 body {
   min-height: 100vh;
-  background: #ffffff;
+  background:
+    radial-gradient(circle at 28% 8%, rgba(124, 109, 242, 0.1), transparent 28%),
+    radial-gradient(circle at 72% 14%, rgba(255, 180, 220, 0.18), transparent 30%),
+    radial-gradient(circle at 82% 72%, rgba(160, 255, 220, 0.22), transparent 28%),
+    linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
   color: hsl(var(--foreground));
   font-feature-settings: "rlig" 1, "calt" 1;
 }
@@ -64,4 +74,29 @@ select {
 .thin-scrollbar::-webkit-scrollbar-thumb {
   background: hsl(var(--border));
   border-radius: 999px;
+}
+
+@layer components {
+  .glass-card {
+    border: 1px solid rgba(229, 231, 239, 0.9);
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow:
+      0 20px 60px rgba(16, 24, 40, 0.06),
+      0 2px 8px rgba(16, 24, 40, 0.04);
+    backdrop-filter: blur(18px);
+  }
+
+  .glass-panel {
+    border-color: rgba(229, 231, 239, 0.9);
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(18px);
+  }
+
+  .soft-app-bg {
+    background:
+      radial-gradient(circle at 28% 8%, rgba(124, 109, 242, 0.1), transparent 28%),
+      radial-gradient(circle at 72% 14%, rgba(255, 180, 220, 0.18), transparent 30%),
+      radial-gradient(circle at 82% 72%, rgba(160, 255, 220, 0.22), transparent 28%),
+      linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
+  }
 }

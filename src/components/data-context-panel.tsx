@@ -28,41 +28,41 @@ export function DataContextPanel({ dataContext, status, onImport, onExport, onRe
   }
 
   return (
-    <section className="mx-4 mb-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <section className="glass-card mx-4 mb-4 rounded-[20px] p-4">
       <div className="mb-3 flex items-center gap-2">
         <Database className="h-4 w-4 text-primary" />
-        <h2 className="text-sm font-semibold tracking-wide text-slate-950">Master Data</h2>
+        <h2 className="text-sm font-semibold tracking-wide text-[#111827]">Master Data</h2>
       </div>
-      <div className="grid grid-cols-2 gap-2 text-xs text-slate-500">
+      <div className="grid grid-cols-2 gap-2 text-xs text-[#667085]">
         <Metric label="Users" value={dataContext.users.length} />
         <Metric label="Units" value={dataContext.units.length} />
         <Metric label="Tenants" value={dataContext.tenants.length} />
         <Metric label="Work orders" value={dataContext.issues.length} />
       </div>
       <div className="mt-3 grid grid-cols-2 gap-2">
-        <Button variant="outline" size="sm" onClick={() => inputRef.current?.click()} className="w-full border-slate-200 text-slate-700">
+        <Button variant="outline" size="sm" onClick={() => inputRef.current?.click()} className="w-full text-[#667085]">
           <Upload className="h-3.5 w-3.5" />
           Import
         </Button>
-        <Button variant="outline" size="sm" onClick={onExport} className="w-full border-slate-200 text-slate-700">
+        <Button variant="outline" size="sm" onClick={onExport} className="w-full text-[#667085]">
           <Download className="h-3.5 w-3.5" />
           Export
         </Button>
-        <Button variant="ghost" size="sm" onClick={onReset} className="col-span-2 w-full text-slate-600">
+        <Button variant="ghost" size="sm" onClick={onReset} className="col-span-2 w-full text-[#667085]">
           <RotateCcw className="h-3.5 w-3.5" />
           Reset Demo Data
         </Button>
       </div>
       <input ref={inputRef} type="file" accept="application/json,.json" className="hidden" onChange={handleFileChange} />
-      <p className="mt-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-500">{status}</p>
+      <p className="mt-3 rounded-2xl border border-border bg-[#F8F5FF] px-3 py-2 text-xs leading-5 text-[#667085]">{status}</p>
     </section>
   );
 }
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
-      <span className="block font-semibold text-slate-950">{value}</span>
+    <div className="rounded-2xl border border-border bg-white/70 px-3 py-2">
+      <span className="block font-semibold text-[#111827]">{value}</span>
       <span>{label}</span>
     </div>
   );

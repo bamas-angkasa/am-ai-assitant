@@ -120,43 +120,43 @@ export function AppShell() {
   }
 
   return (
-    <main className="h-screen overflow-hidden bg-white text-slate-950">
+    <main className="soft-app-bg h-screen overflow-hidden text-[#111827]">
       <div className="flex h-screen flex-col">
-        <header className="flex h-16 flex-none items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6">
+        <header className="glass-panel flex h-16 flex-none items-center justify-between border-b px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-white shadow-sm">
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-primary text-white shadow-violet">
               <Bot className="h-4 w-4" />
             </div>
             <div className="min-w-0">
               <h1 className="truncate text-base font-semibold text-primary sm:text-lg">Dian AI Assistant</h1>
-              <p className="truncate text-xs text-slate-500 lg:hidden">{selectedUser.name} - {selectedUser.displayRole}</p>
+              <p className="truncate text-xs text-[#667085] lg:hidden">{selectedUser.name} - {selectedUser.displayRole}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
-            <div className="hidden h-9 items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-4 text-sm font-semibold tracking-wide text-slate-700 sm:flex">
-              <Circle className="h-2 w-2 fill-emerald-500 text-emerald-500" />
+            <div className="hidden h-9 items-center gap-2 rounded-full border border-[#D7F0DF] bg-[#EAF8EF] px-4 text-sm font-semibold tracking-wide text-[#356C4B] shadow-sm sm:flex">
+              <Circle className="h-2 w-2 fill-[#4CAF73] text-[#4CAF73]" />
               Permission: {permissionTone}
             </div>
-            <span className="hidden text-lg font-medium tracking-wide text-slate-800 md:inline">System Admin</span>
+            <span className="hidden text-lg font-medium tracking-wide text-[#111827] md:inline">System Admin</span>
             <button
               type="button"
               onClick={() => setIsMobileSettingsOpen(true)}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-white shadow-sm lg:hidden"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-white shadow-violet lg:hidden"
               aria-label="Open profile settings"
               title="Profile settings"
             >
               <Settings2 className="h-4 w-4" />
             </button>
-            <div className="hidden h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-white shadow-sm lg:flex">
+            <div className="hidden h-9 w-9 items-center justify-center rounded-full bg-primary text-white shadow-violet lg:flex">
               <UserRound className="h-4 w-4" />
             </div>
           </div>
         </header>
 
         <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)_380px]">
-          <aside className="hidden min-h-0 flex-col bg-slate-50 lg:flex">
+          <aside className="hidden min-h-0 flex-col bg-white/[0.35] lg:flex">
             <UserSelector users={dataContext.users} selectedUser={selectedUser} onSelectUser={handleSelectUser} />
-            <div className="flex-none border-r border-slate-200 bg-slate-50">
+            <div className="flex-none border-r border-border/80 bg-white/[0.35]">
               <RoleCard user={selectedUser} />
               <DataContextPanel
                 dataContext={dataContext}
@@ -191,16 +191,16 @@ export function AppShell() {
               aria-label="Close profile settings"
               onClick={() => setIsMobileSettingsOpen(false)}
             />
-            <section className="absolute inset-y-0 right-0 flex w-full max-w-sm flex-col bg-slate-50 shadow-2xl">
-              <div className="flex h-16 flex-none items-center justify-between border-b border-slate-200 bg-white px-4">
+            <section className="soft-app-bg absolute inset-y-0 right-0 flex w-full max-w-sm flex-col shadow-2xl">
+              <div className="glass-panel flex h-16 flex-none items-center justify-between border-b px-4">
                 <div>
-                  <h2 className="text-base font-semibold text-slate-950">Profile Settings</h2>
-                  <p className="text-xs text-slate-500">Persona, access, master data</p>
+                  <h2 className="text-base font-semibold text-[#111827]">Profile Settings</h2>
+                  <p className="text-xs text-[#667085]">Persona, access, master data</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsMobileSettingsOpen(false)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white/80 text-[#667085]"
                   aria-label="Close profile settings"
                 >
                   <X className="h-4 w-4" />
@@ -216,7 +216,7 @@ export function AppShell() {
                   onExport={handleExportDataContext}
                   onReset={handleResetDataContext}
                 />
-                <div className="mx-4 mb-4 overflow-hidden rounded-lg">
+                <div className="mx-4 mb-4 overflow-hidden rounded-[20px]">
                   <AssistantDebugPanel debugState={debugState} selectedUser={selectedUser} />
                 </div>
               </div>

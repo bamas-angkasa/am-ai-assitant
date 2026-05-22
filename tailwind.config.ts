@@ -25,8 +25,9 @@ const config: Config = {
         destructive: "hsl(var(--destructive))"
       },
       boxShadow: {
-        soft: "0 18px 45px rgba(15, 23, 42, 0.08)",
-        panel: "0 1px 2px rgba(15, 23, 42, 0.06), 0 20px 60px rgba(15, 23, 42, 0.08)"
+        soft: "0 20px 60px rgba(16, 24, 40, 0.06), 0 2px 8px rgba(16, 24, 40, 0.04)",
+        panel: "0 24px 80px rgba(124, 109, 242, 0.1), 0 2px 12px rgba(16, 24, 40, 0.05)",
+        violet: "0 8px 24px rgba(124, 109, 242, 0.12)"
       }
     }
   },

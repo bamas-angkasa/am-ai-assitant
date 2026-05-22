@@ -2,7 +2,7 @@ import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 export function Card({ className, ...props }: HTMLAttributes<HTMLElement>) {
-  return <section className={cn("rounded-lg border border-border bg-card shadow-soft", className)} {...props} />;
+  return <section className={cn("glass-card rounded-[20px]", className)} {...props} />;
 }
 
 export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {

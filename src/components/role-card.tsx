@@ -7,12 +7,12 @@ interface RoleCardProps {
 
 export function RoleCard({ user }: RoleCardProps) {
   return (
-    <section className="mx-4 mb-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <section className="glass-card mx-4 mb-4 rounded-[20px] p-4">
       <div className="mb-3 flex items-center gap-2">
         <ShieldCheck className="h-4 w-4 text-primary" />
-        <h2 className="text-sm font-semibold tracking-wide text-slate-950">Allowed Scope</h2>
+        <h2 className="text-sm font-semibold tracking-wide text-[#111827]">Allowed Scope</h2>
       </div>
-      <p className="text-sm leading-6 text-slate-700">{shortenScope(user)}</p>
+      <p className="text-sm leading-6 text-[#667085]">{shortenScope(user)}</p>
     </section>
   );
 }

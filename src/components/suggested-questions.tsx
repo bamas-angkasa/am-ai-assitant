@@ -58,14 +58,14 @@ export function SuggestedQuestions({ role, onAsk, compact = false }: SuggestedQu
   if (compact) {
     return (
       <div>
-        <p className="mb-3 text-xs font-medium uppercase tracking-[0.18em] text-slate-700">Suggested Questions</p>
+        <p className="mb-3 text-xs font-medium uppercase tracking-[0.18em] text-[#667085]">Suggested Questions</p>
         <div className="flex flex-wrap gap-2">
           {questions.map((question) => (
             <button
               key={question}
               type="button"
               onClick={() => onAsk(question)}
-              className="rounded-full border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-700 shadow-sm transition hover:border-primary/50 hover:text-primary"
+              className="rounded-full border border-border bg-white/75 px-3.5 py-2 text-sm text-[#667085] shadow-sm backdrop-blur transition hover:border-[#C9B8FF] hover:bg-[#F8F5FF] hover:text-primary"
             >
               {question}
             </button>
@@ -87,7 +87,7 @@ export function SuggestedQuestions({ role, onAsk, compact = false }: SuggestedQu
             key={question}
             type="button"
             onClick={() => onAsk(question)}
-            className={cn("rounded-md border border-border bg-card px-3 py-2.5 text-left text-sm leading-5 transition hover:border-primary/50 hover:bg-secondary")}
+            className={cn("rounded-2xl border border-border bg-white/70 px-3 py-2.5 text-left text-sm leading-5 text-[#667085] transition hover:border-[#C9B8FF] hover:bg-[#F8F5FF] hover:text-primary")}
           >
             {question}
           </button>
