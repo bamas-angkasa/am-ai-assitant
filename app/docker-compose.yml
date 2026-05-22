@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ai_asset_assistant
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    image: golang:1.22-alpine
+    working_dir: /workspace/backend
+    command: go run ./cmd/server
+    environment:
+      PORT: 8080
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/ai_asset_assistant
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      AI_PROVIDER: claude
+      MOCK_AI: "true"
+    volumes:
+      - ./backend:/workspace/backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+  frontend:
+    image: node:20-alpine
+    working_dir: /workspace/frontend
+    command: sh -c "corepack enable && pnpm install && pnpm dev"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+    volumes:
+      - ./frontend:/workspace/frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

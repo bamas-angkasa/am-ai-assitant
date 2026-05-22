@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Bot, Circle, Settings2, UserRound, X } from "lucide-react";
-import { runAssistant } from "@/lib/assistant-engine";
 import { clearSavedDataContext, getDefaultDataContext, loadSavedDataContext, parseDataContext, saveDataContext, serializeDataContext } from "@/lib/data-context";
+import { sendChatMessage } from "@/lib/api";
 import type { AppFolioDataContext, AssistantDebugState, ChatMessage, User } from "@/lib/types";
 import { nowLabel } from "@/lib/utils";
 import { AssistantDebugPanel } from "./assistant-debug-panel";
@@ -24,6 +24,7 @@ export function AppShell() {
   const [isLoading, setIsLoading] = useState(false);
   const [dataStatus, setDataStatus] = useState("Using built-in master data.");
   const [isMobileSettingsOpen, setIsMobileSettingsOpen] = useState(false);
+  const [conversationId, setConversationId] = useState<string | undefined>();
 
   useEffect(() => {
     try {
@@ -47,26 +48,55 @@ export function AppShell() {
     setSelectedUser(user);
     setIsMobileSettingsOpen(false);
     setDebugState(null);
+    setConversationId(undefined);
     setMessages([
       createMessage("assistant", initialAssistantMessage),
       createMessage("system", `You are now viewing as ${user.name} - ${user.displayRole}.`)
     ]);
   }
 
-  function handleSubmitQuestion(question: string) {
+  async function handleSubmitQuestion(question: string) {
     const userMessage = createMessage("user", question);
     setMessages((current) => [...current, userMessage]);
     setIsLoading(true);
 
-    window.setTimeout(() => {
-      const response = runAssistant(selectedUser, question, dataContext);
-      setDebugState(response.debug);
+    try {
+      const response = await sendChatMessage({
+        userId: selectedUser.id,
+        role: selectedUser.role,
+        conversationId,
+        message: question
+      });
+      setConversationId(response.conversationId);
+      setDebugState({
+        selectedUser: selectedUser.name,
+        role: selectedUser.displayRole,
+        detectedIntent: "out_of_scope",
+        extractedEntities: { keywords: response.sources.map((source) => source.type) },
+        permission: {
+          allowed: response.permission.allowed,
+          reason: `${response.permission.reason} Audit ID: ${response.auditId}`,
+          dataUsed: response.sources.map((source) => `${source.type} ${source.id}`)
+        },
+        escalationNeeded: response.escalationRequired
+      });
       setMessages((current) => [
         ...current,
-        createMessage("assistant", response.answer, { showLiveAgent: response.escalationNeeded })
+        createMessage("assistant", response.answer, { showLiveAgent: response.escalationRequired })
       ]);
+    } catch (error) {
+      setMessages((current) => [
+        ...current,
+        createMessage(
+          "assistant",
+          error instanceof Error
+            ? `The backend assistant service could not answer: ${error.message}`
+            : "The backend assistant service could not answer. Please check that the Go API is running."
+        )
+      ]);
+    } finally {
       setIsLoading(false);
-    }, 450);
+    }
   }
 
   function handleClear() {
