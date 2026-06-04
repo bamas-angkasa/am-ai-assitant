@@ -1,24 +1,41 @@
-# Dian AI Assistant
+# AppFolio AI Monorepo
 
-A production-quality local demo for a property management AI assistant. It shows how tenants, owners, HOA/board members, building owners, and admins can ask questions while the assistant filters data by role before generating an answer.
+Phase 1 scaffold for an AI-assisted AppFolio maintenance inbox. The current frontend demo is preserved as the starting UI, and the backend scaffold contains the first safety-critical modules for owner-only notes, message matching, AI recommendation validation, approval state, and audit logging.
 
-## Run locally
+## Structure
+
+```txt
+apps/frontend   Next.js, React, TypeScript, Tailwind
+apps/backend    Go API, worker, sync scaffold, migrations
+docs            Product, architecture, API, and deployment notes
+```
+
+## Run Locally
+
+Install frontend dependencies from the repository root:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Run backend checks from the repository root:
 
-## What it demonstrates
+```bash
+npm run backend:test
+```
 
-- Role-aware user selection
-- AppFolio-style mock users, profiles, properties, units, tenants, owners, HOA members, leases, payments, work orders, vendors, invoices, attachments, communications, announcements, and live chat escalations
-- Local intent detection and entity extraction
-- Permission-first data filtering
-- Natural-language assistant answers based only on allowed data
-- Refusals for unauthorized private data
-- Live agent handoff for emergencies, complaints, disputes, and missing data
-- Import/export JSON data context from the left sidebar to swap demo records without code changes
-- Light and dark mode responsive UI
+Start local services:
+
+```bash
+docker compose up -d postgres redis
+```
+
+Frontend runs at `http://localhost:3000`. Backend defaults to `http://localhost:8080`.
+
+## Docs
+
+- [AppFolio AI product plan](docs/appfolio-ai.md)
+- [Architecture](docs/architecture.md)
+- [API notes](docs/api.md)
+- [Deployment notes](docs/deployment.md)
