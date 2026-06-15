@@ -13,8 +13,10 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "baseUrl": ".",
     "plugins": [{ "name": "next" }],
     "paths": {
+      "@appfolio-ai/core": ["../../packages/core/src/index.ts"],
       "@/*": ["./src/*"]
     }
   },
