@@ -1,12 +1,20 @@
 {
-  "name": "dian-ai-assistant",
+  "name": "appfolio-maintenance-ai-assistant",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "npm run dev -w @appfolio-ai/web",
+    "dev:web": "npm run dev -w @appfolio-ai/web",
+    "dev:api": "npm run dev -w @appfolio-ai/api",
+    "build": "npm run build -w @appfolio-ai/core && npm run build -w @appfolio-ai/api && npm run build -w @appfolio-ai/web",
+    "build:web": "npm run build -w @appfolio-ai/web",
+    "build:api": "npm run build -w @appfolio-ai/api",
+    "typecheck": "npm run typecheck -w @appfolio-ai/core && npm run typecheck -w @appfolio-ai/api && npm run typecheck -w @appfolio-ai/web",
+    "lint": "npm run lint -w @appfolio-ai/web"
   },
   "dependencies": {
     "@types/node": "^20.12.12",

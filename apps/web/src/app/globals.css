@@ -1,0 +1,223 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 228 33% 98%;
+  --foreground: 221 39% 11%;
+  --muted: 255 100% 97%;
+  --muted-foreground: 218 15% 40%;
+  --border: 228 24% 92%;
+  --card: 0 0% 100%;
+  --card-foreground: 221 39% 11%;
+  --primary: 247 84% 69%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 255 100% 97%;
+  --secondary-foreground: 221 39% 11%;
+  --ring: 247 84% 69%;
+  --destructive: 0 72% 51%;
+  --primary-soft: #f3efff;
+  --primary-border: #c9b8ff;
+  --text-secondary: #667085;
+  --text-muted: #98a2b3;
+  --success: #4caf73;
+  --success-bg: #eaf8ef;
+}
+
+.dark {
+  --background: 222 47% 7%;
+  --foreground: 210 40% 96%;
+  --muted: 217 33% 14%;
+  --muted-foreground: 215 20% 72%;
+  --border: 217 28% 20%;
+  --card: 222 39% 10%;
+  --card-foreground: 210 40% 96%;
+  --primary: 247 84% 72%;
+  --primary-foreground: 222 47% 9%;
+  --secondary: 217 33% 15%;
+  --secondary-foreground: 210 40% 96%;
+  --ring: 247 84% 72%;
+  --destructive: 0 72% 58%;
+  --primary-soft: #211c3a;
+  --primary-border: #554b8d;
+  --text-secondary: #aab4c5;
+  --text-muted: #7d899b;
+  --success: #6fd497;
+  --success-bg: #102c20;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 28% 8%, rgba(124, 109, 242, 0.1), transparent 28%),
+    radial-gradient(circle at 72% 14%, rgba(255, 180, 220, 0.18), transparent 30%),
+    radial-gradient(circle at 82% 72%, rgba(160, 255, 220, 0.22), transparent 28%),
+    linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
+  color: hsl(var(--foreground));
+  font-feature-settings: "rlig" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at 22% 8%, rgba(124, 109, 242, 0.15), transparent 30%),
+    radial-gradient(circle at 78% 12%, rgba(168, 85, 247, 0.1), transparent 28%),
+    linear-gradient(180deg, #0a0f1d 0%, #0d1322 100%);
+}
+
+button,
+textarea,
+select,
+input {
+  font: inherit;
+}
+
+input,
+textarea,
+select {
+  color: inherit;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 999px;
+}
+
+@layer components {
+  .glass-card {
+    border: 1px solid rgba(229, 231, 239, 0.9);
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow:
+      0 20px 60px rgba(16, 24, 40, 0.06),
+      0 2px 8px rgba(16, 24, 40, 0.04);
+    backdrop-filter: blur(18px);
+  }
+
+  .glass-panel {
+    border-color: rgba(229, 231, 239, 0.9);
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(18px);
+  }
+
+  .soft-app-bg {
+    background:
+      radial-gradient(circle at 28% 8%, rgba(124, 109, 242, 0.1), transparent 28%),
+      radial-gradient(circle at 72% 14%, rgba(255, 180, 220, 0.18), transparent 30%),
+      radial-gradient(circle at 82% 72%, rgba(160, 255, 220, 0.22), transparent 28%),
+      linear-gradient(180deg, #ffffff 0%, #fbfbff 100%);
+  }
+
+  .bg-app {
+    background:
+      radial-gradient(circle at 78% 2%, rgba(139, 92, 246, 0.07), transparent 24rem),
+      radial-gradient(circle at 20% 100%, rgba(99, 102, 241, 0.05), transparent 28rem),
+      #f8f9fc;
+  }
+
+  .surface-card {
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02), 0 8px 24px rgba(15, 23, 42, 0.035);
+  }
+}
+
+@layer components {
+  .dark .soft-app-bg,
+  .dark .bg-app {
+    background:
+      radial-gradient(circle at 78% 2%, rgba(139, 92, 246, 0.13), transparent 24rem),
+      radial-gradient(circle at 20% 100%, rgba(99, 102, 241, 0.09), transparent 28rem),
+      #0a0f1d;
+  }
+
+  .dark .glass-card {
+    border-color: rgba(61, 72, 94, 0.72);
+    background: rgba(17, 24, 39, 0.76);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.18);
+  }
+
+  .dark .glass-panel {
+    border-color: rgba(61, 72, 94, 0.72);
+    background: rgba(12, 18, 32, 0.82);
+  }
+
+  .dark .surface-card {
+    border-color: hsl(var(--border));
+    background: rgba(17, 24, 39, 0.94);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+  }
+}
+
+/* Compatibility layer for legacy screens that predate semantic color tokens. */
+.dark :is(.bg-white, [class~="bg-white/90"], [class~="bg-white/80"], [class~="bg-white/70"], [class~="bg-white/60"], [class~="bg-white/[0.96]"], [class~="bg-white/[0.90]"], [class~="bg-white/[0.85]"], [class~="bg-white/[0.78]"], [class~="bg-white/[0.75]"], [class~="bg-white/[0.72]"], [class~="bg-white/[0.45]"], [class~="bg-white/[0.35]"]) {
+  background-color: hsl(var(--card));
+}
+
+.dark :is(.bg-slate-50, [class~="bg-slate-50/70"], .bg-slate-100) {
+  background-color: hsl(var(--muted));
+}
+
+.dark :is(.border-slate-100, .border-slate-200, [class~="border-slate-200/80"], .border-slate-300) {
+  border-color: hsl(var(--border));
+}
+
+.dark :is(.divide-slate-100, .divide-slate-200) > :not([hidden]) ~ :not([hidden]) {
+  border-color: hsl(var(--border));
+}
+
+.dark :is(.text-slate-950, .text-slate-900, .text-slate-800, .text-slate-700) {
+  color: hsl(var(--foreground));
+}
+
+.dark :is(.text-slate-600, .text-slate-500, .text-slate-400, .text-slate-300) {
+  color: hsl(var(--muted-foreground));
+}
+
+.dark :is([class~="text-[#111827]"], [class~="text-[#344054]"]) {
+  color: hsl(var(--foreground));
+}
+
+.dark :is([class~="text-[#667085]"], [class~="text-[#98A2B3]"], [class~="text-[#98a2b3]"]) {
+  color: hsl(var(--muted-foreground));
+}
+
+.dark :is([class~="bg-[#F8F5FF]"], [class~="bg-[#F4F2FF]"]) {
+  background-color: hsl(var(--muted));
+}
+
+.dark :is(.bg-indigo-50, [class~="bg-indigo-50/70"], [class~="bg-indigo-50/80"]) {
+  background-color: rgba(99, 102, 241, 0.14);
+}
+
+.dark :is(.text-indigo-900, .text-indigo-800, .text-indigo-700) {
+  color: #c7d2fe;
+}
+
+.dark select option {
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+}

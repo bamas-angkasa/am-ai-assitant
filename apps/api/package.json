@@ -1,0 +1,15 @@
+{
+  "name": "@appfolio-ai/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsc -w -p tsconfig.json",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@appfolio-ai/core": "0.1.0"
+  }
+}
