@@ -12,6 +12,7 @@ import { DataContextPanel } from "./data-context-panel";
 import { RoleCard } from "./role-card";
 import { SuggestedQuestions } from "./suggested-questions";
 import { UserSelector } from "./user-selector";
+import { ThemeToggle } from "./theme-provider";
 
 const initialAssistantMessage =
   "Hi, I'm Dian AI Assistant. I can help with rent, lease, maintenance issues, building updates, and property-related questions. Please select a user role and ask a question.";
@@ -137,6 +138,7 @@ export function AppShell() {
               <Circle className="h-2 w-2 fill-[#4CAF73] text-[#4CAF73]" />
               Permission: {permissionTone}
             </div>
+            <ThemeToggle />
             <span className="hidden text-lg font-medium tracking-wide text-[#111827] md:inline">System Admin</span>
             <button
               type="button"

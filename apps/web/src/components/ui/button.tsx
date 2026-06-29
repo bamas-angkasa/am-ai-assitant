@@ -11,9 +11,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants: Record<ButtonVariant, string> = {
   default: "bg-primary text-primary-foreground shadow-violet hover:bg-[#6D5DF0]",
-  secondary: "bg-secondary text-secondary-foreground hover:bg-[#F3EFFF]",
-  outline: "border border-border bg-white/70 hover:border-[#C9B8FF] hover:bg-[#F8F5FF]",
-  ghost: "hover:bg-[#F8F5FF]",
+  secondary: "bg-secondary text-secondary-foreground hover:bg-muted",
+  outline: "border border-border bg-card/70 hover:border-primary/40 hover:bg-muted",
+  ghost: "hover:bg-muted",
   destructive: "bg-destructive text-white hover:bg-destructive/90"
 };
 

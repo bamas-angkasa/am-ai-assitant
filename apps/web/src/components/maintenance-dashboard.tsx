@@ -25,6 +25,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn, formatStatus } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-provider";
 
 const initialData = getDemoMaintenanceData();
 
@@ -108,6 +109,7 @@ export function MaintenanceDashboard() {
           </div>
         </div>
         <div className="hidden items-center gap-3 sm:flex">
+          <ThemeToggle />
           <Badge variant="success">
             <DatabaseZap className="h-3 w-3" />
             AppFolio sync healthy

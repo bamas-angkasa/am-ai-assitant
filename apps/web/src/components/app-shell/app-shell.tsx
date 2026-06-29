@@ -6,6 +6,7 @@ import { useState, type ReactNode } from "react";
 import { Bot, Building2, CheckCircle2, ChevronDown, ClipboardCheck, DatabaseZap, FileClock, Inbox, Menu, Settings, ShieldCheck, Sparkles, UserRound, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SyncHealthBadge } from "@/components/status/badges";
+import { ThemeToggle } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 import { useMaintenance } from "@/lib/state/maintenance-provider";
 
@@ -24,7 +25,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const unmatchedCount = snapshot.manual_match_messages.filter((item) => item.status === "needs_review").length;
 
   return (
-    <div className="min-h-screen bg-app text-slate-900">
+    <div className="min-h-screen bg-app text-foreground transition-colors">
       <a href="#main-content" className="sr-only z-50 rounded-lg bg-white px-4 py-2 focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to content</a>
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-slate-200/80 bg-white/90 backdrop-blur-xl lg:flex lg:flex-col">
         <Brand />
@@ -44,7 +45,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="lg:pl-64">
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200/80 bg-white/80 px-4 backdrop-blur-xl sm:px-6">
           <div className="flex items-center gap-3"><Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open navigation"><Menu className="h-5 w-5" /></Button><div className="hidden items-center gap-2 text-sm text-slate-500 sm:flex"><Building2 className="h-4 w-4" /><span>Vantage Residence</span><span className="text-slate-300">/</span><span className="font-medium text-slate-700">Maintenance Operations</span></div></div>
-          <div className="flex items-center gap-3"><SyncHealthBadge status={snapshot.integration_health.appfolio_status} label="AppFolio healthy" /><div className="hidden h-8 w-px bg-slate-200 sm:block" /><div className="hidden items-center gap-2 sm:flex"><div className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-600 text-white"><UserRound className="h-4 w-4" /></div><div><p className="text-xs font-semibold">Maya Chen</p><p className="text-[11px] text-slate-400">Property Manager</p></div></div></div>
+          <div className="flex items-center gap-3"><SyncHealthBadge status={snapshot.integration_health.appfolio_status} label="AppFolio healthy" /><ThemeToggle /><div className="hidden h-8 w-px bg-slate-200 sm:block" /><div className="hidden items-center gap-2 sm:flex"><div className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-600 text-white"><UserRound className="h-4 w-4" /></div><div><p className="text-xs font-semibold">Maya Chen</p><p className="text-[11px] text-slate-400">Property Manager</p></div></div></div>
         </header>
         <main id="main-content" className="mx-auto min-h-[calc(100vh-4rem)] max-w-[1600px] p-4 sm:p-6 xl:p-8">{children}</main>
       </div>
