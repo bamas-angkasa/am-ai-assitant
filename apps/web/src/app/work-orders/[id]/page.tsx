@@ -17,15 +17,16 @@ const tabs = [
 ] as const;
 type Tab = (typeof tabs)[number]["id"];
 
-export default function WorkOrderDetailPage({ params }: { params: { id: string } }) {
+export default function WorkOrderDetailPage({ params, searchParams }: { params: { id: string }; searchParams?: { from?: string } }) {
   const { snapshot } = useMaintenance();
   const [tab, setTab] = useState<Tab>("overview");
   const workOrder = snapshot.work_orders.find((item) => item.id === params.id);
-  if (!workOrder) return <div className="space-y-5"><Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600"><ArrowLeft className="h-4 w-4" />Back to inbox</Link><EmptyState title="Work order not found" description="The work order may have been removed or is outside your assigned portfolio." /></div>;
+  const backHref = searchParams?.from?.startsWith("/dashboard") ? searchParams.from : "/dashboard";
+  if (!workOrder) return <div className="space-y-5"><Link href={backHref} className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600"><ArrowLeft className="h-4 w-4" />Back to inbox</Link><EmptyState title="Work order not found" description="The work order may have been removed or is outside your assigned portfolio." /></div>;
   const events = snapshot.timeline_events.filter((item) => item.work_order_id === workOrder.id);
 
   return <div className="space-y-5">
-    <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-indigo-700"><ArrowLeft className="h-4 w-4" />Back to maintenance inbox</Link>
+    <Link href={backHref} className="sticky top-20 z-20 inline-flex w-fit items-center gap-2 rounded-xl border border-border bg-card/90 px-3 py-2 text-sm font-semibold text-slate-500 shadow-sm backdrop-blur hover:text-indigo-700"><ArrowLeft className="h-4 w-4" />Back to maintenance inbox</Link>
     <WorkOrderHeader workOrder={workOrder} />
     <nav className="thin-scrollbar flex gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1.5" aria-label="Work order sections">{tabs.map((item) => <button key={item.id} type="button" onClick={() => setTab(item.id)} className={cn("flex min-w-max items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold transition", tab === item.id ? "bg-indigo-50 text-indigo-700" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800")}><item.icon className="h-3.5 w-3.5" />{item.label}{item.id === "notes" && <span className="text-[10px]">{workOrder.notes.length}</span>}{item.id === "messages" && <span className="text-[10px]">{workOrder.messages.length}</span>}</button>)}</nav>
 
