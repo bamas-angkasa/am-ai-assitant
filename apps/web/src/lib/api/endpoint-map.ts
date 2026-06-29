@@ -5,6 +5,7 @@ export const apiEndpoints = {
   workOrderTimeline: (id: string) => `/api/v1/work-orders/${id}/timeline`,
   recommendations: "/api/v1/recommendations",
   recommendation: (id: string) => `/api/v1/recommendations/${id}`,
+  editRecommendationDraft: (id: string) => `/api/v1/recommendations/${id}/draft`,
   refreshRecommendation: (id: string) => `/api/v1/recommendations/${id}/regenerate`,
   approveRecommendation: (id: string) => `/api/v1/recommendations/${id}/approve`,
   rejectRecommendation: (id: string) => `/api/v1/recommendations/${id}/reject`,

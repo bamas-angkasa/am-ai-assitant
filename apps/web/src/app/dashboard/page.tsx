@@ -39,7 +39,7 @@ export default function DashboardPage() {
     return true;
   }), [snapshot.work_orders, query, view]);
 
-  const selected = snapshot.work_orders.find((item) => item.id === selectedId) ?? visible[0] ?? snapshot.work_orders[0];
+  const selected = visible.find((item) => item.id === selectedId) ?? visible[0];
   const timeline = selected ? snapshot.timeline_events.filter((item) => item.work_order_id === selected.id) : [];
 
   return <div className="space-y-6">

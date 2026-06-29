@@ -3,8 +3,8 @@ import type {
   AuditEvent,
   AuditFilters,
   IntegrationHealth,
+  HealthStatus,
   ListResult,
-  MaintenanceSnapshot,
   ManualMatchMessage,
   ManualSendPayload,
   Recommendation,
@@ -17,7 +17,7 @@ import type {
 } from "@/lib/types/maintenance";
 
 export interface MaintenanceApi {
-  getSnapshot(): MaintenanceSnapshot;
+  getHealth(): Promise<HealthStatus>;
   listWorkOrders(filters?: WorkOrderFilters): Promise<ListResult<WorkOrder>>;
   getWorkOrder(id: string): Promise<WorkOrderDetail>;
   getWorkOrderTimeline(id: string): Promise<ListResult<TimelineEvent>>;
@@ -34,7 +34,6 @@ export interface MaintenanceApi {
   getIntegrationHealth(): Promise<IntegrationHealth>;
   listManualMatchMessages(): Promise<ListResult<ManualMatchMessage>>;
   matchInboundMessage(messageId: string, workOrderId: string): Promise<ManualMatchMessage>;
-  reset(): Promise<MaintenanceSnapshot>;
 }
 
 export class ApiError extends Error {

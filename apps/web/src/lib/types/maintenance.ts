@@ -248,6 +248,12 @@ export interface ListResult<T> {
   next_cursor?: string;
 }
 
+export interface HealthStatus {
+  status: "ok" | "degraded";
+  service: string;
+  timestamp: string;
+}
+
 export interface ApproveRecommendationPayload {
   final_reply: string;
   expected_version: number;

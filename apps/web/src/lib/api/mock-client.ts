@@ -19,6 +19,10 @@ export class MockMaintenanceApi implements MaintenanceApi {
     return structuredClone(this.snapshot);
   }
 
+  async getHealth() {
+    return { status: "ok" as const, service: "mock-maintenance-api", timestamp: new Date().toISOString() };
+  }
+
   async listWorkOrders(filters: WorkOrderFilters = {}) {
     let items = this.snapshot.work_orders;
     const query = filters.query?.trim().toLowerCase();
