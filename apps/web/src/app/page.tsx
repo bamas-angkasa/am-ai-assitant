@@ -1,5 +1,5 @@
-import { MaintenanceDashboard } from "@/components/maintenance-dashboard";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <MaintenanceDashboard />;
+  redirect("/dashboard");
 }
